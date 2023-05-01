@@ -1,13 +1,15 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'dart:async';
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'dart:ui';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:myapp/page-1/bottomnavbar.dart';
 import 'package:myapp/page-1/home.dart';
+import 'package:myapp/page-1/login.dart';
 import 'package:myapp/utils.dart';
 // import 'package:myapp/page-1/cart.dart';
 // import 'package:myapp/page-1/profile-setting.dart';
@@ -29,13 +31,26 @@ import 'package:myapp/utils.dart';
 // import 'package:myapp/page-1/order-detail.dart';
 // import 'package:myapp/page-1/user.dart';
 import 'package:myapp/page-1/splash-screen.dart';
+
 // import 'package:myapp/page-1/registration.dart';
 // import 'package:myapp/page-1/shipping-address.dart';
 // import 'package:myapp/page-1/billing-address.dart';
 // import 'package:myapp/page-1/login.dart';
 // import 'package:myapp/page-1/otp.dart';
+bool shouldUseFirebaseEmulator = false;
 
-void main() => runApp(MyApp());
+late final FirebaseApp app;
+late final FirebaseAuth auth;
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // We're using the manual installation on non-web platforms since Google sign in plugin doesn't yet support Dart initialization.
+  // See related issue: https://github.com/flutter/flutter/issues/96391
+
+  // We store the app and auth to make testing with a named instance easier.
+  app = await Firebase.initializeApp();
+  auth = FirebaseAuth.instanceFor(app: app);
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -67,7 +82,12 @@ class _homepageState extends State<homepage> {
   }
 
   void mainfunction() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
+    // print(auth.currentUser);
+    auth.signOut();
+    if (auth.currentUser == null)
+      Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
+    else
+      Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
   }
 
   @override

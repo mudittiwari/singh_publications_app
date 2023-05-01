@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:myapp/page-1/bottomnavbar.dart';
 import 'package:myapp/page-1/product-page.dart';
 import 'package:myapp/utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -14,9 +15,21 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  @override
   double baseWidth = 393;
+  getuser() async {
+    SharedPreferences.setMockInitialValues({});
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? pubuser = prefs.getString('pubuser');
+    print(pubuser);
+  }
 
+  @override
+  void initState() {
+    super.initState();
+    getuser();
+  }
+
+  @override
   Widget build(BuildContext context) {
     double fem = MediaQuery.of(context).size.width / baseWidth;
     double ffem = fem * 0.97;
