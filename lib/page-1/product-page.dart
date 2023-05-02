@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'dart:ui';
@@ -6,7 +8,8 @@ import 'package:myapp/page-1/bottomnavbar.dart';
 import 'package:myapp/utils.dart';
 
 class Product extends StatefulWidget {
-  const Product({super.key});
+  String product;
+  Product({super.key, required this.product});
 
   @override
   State<Product> createState() => _ProductState();
@@ -17,6 +20,7 @@ class _ProductState extends State<Product> {
 
   @override
   Widget build(BuildContext context) {
+    var product = json.decode(widget.product);
     double fem = MediaQuery.of(context).size.width / baseWidth;
     double ffem = fem * 0.97;
     return Scaffold(
@@ -161,7 +165,7 @@ class _ProductState extends State<Product> {
                                 width: 341 * fem,
                                 height: 146 * fem,
                                 child: Text(
-                                  'Lorem ipsum dolor sit amet consectetur. A sed ornare elementum orci odio mi ullamcorper velit aliquam. Feugiat in pellentesque et dui adipiscing orci fringilla faucibus. Nullam sit aenean scelerisque nunc donec urna pellentesque est nunc. Magna sollicitudin elit cursus semper porta vitae ornare magna hendrerit. ',
+                                  json.decode(widget.product)['description'],
                                   style: SafeGoogleFont(
                                     'Inter',
                                     fontSize: 15 * ffem,
@@ -200,7 +204,8 @@ class _ProductState extends State<Product> {
                                               width: 268 * fem,
                                               height: 30 * fem,
                                               child: Text(
-                                                'Think Outside The Box',
+                                                json.decode(
+                                                    widget.product)['title'],
                                                 style: SafeGoogleFont(
                                                   'Inter',
                                                   fontSize:
@@ -222,7 +227,8 @@ class _ProductState extends State<Product> {
                                               width: 91 * fem,
                                               height: 21 * fem,
                                               child: Text(
-                                                'Paperback',
+                                                json.decode(
+                                                    widget.product)['category'],
                                                 style: SafeGoogleFont(
                                                   'Inter',
                                                   fontSize:
@@ -243,7 +249,7 @@ class _ProductState extends State<Product> {
                                     margin: EdgeInsets.fromLTRB(
                                         4 * fem, 0 * fem, 0 * fem, 5 * fem),
                                     child: Text(
-                                      'Art | Life | Goals',
+                                      json.decode(widget.product)['subtitle'],
                                       style: SafeGoogleFont(
                                         'Inter',
                                         fontSize: 17.2600002289 * ffem,
@@ -266,7 +272,10 @@ class _ProductState extends State<Product> {
                                           margin: EdgeInsets.fromLTRB(0 * fem,
                                               0 * fem, 5 * fem, 0 * fem),
                                           child: Text(
-                                            '4.1',
+                                            json
+                                                .decode(
+                                                    widget.product)['rating']
+                                                .toString(),
                                             style: SafeGoogleFont(
                                               'Inter',
                                               fontSize: 17.2600002289 * ffem,
@@ -345,7 +354,7 @@ class _ProductState extends State<Product> {
                                   Container(
                                     // bookdescriptiond7W (1:502)
                                     margin: EdgeInsets.fromLTRB(
-                                        0 * fem, 0 * fem, 0 * fem, 208 * fem),
+                                        0 * fem, 0 * fem, 0 * fem, 20 * fem),
                                     child: Text(
                                       'Book Description',
                                       style: SafeGoogleFont(
@@ -375,7 +384,8 @@ class _ProductState extends State<Product> {
                           Positioned(
                             // authorbhawanshjangirpublishers (1:524)
                             left: 0 * fem,
-                            top: 385 * fem,
+                            bottom: 0,
+                            // top: 385 * fem,
                             child: Align(
                               child: SizedBox(
                                 width: 278 * fem,

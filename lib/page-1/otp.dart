@@ -43,15 +43,12 @@ class _OTPState extends State<OTP> {
     // Sign the user in (or link) with the credential
     await auth.signInWithCredential(credential).then((value) async {
       if (value.user != null) {
-        SharedPreferences.setMockInitialValues({});
+        // SharedPreferences.setMockInitialValues({});
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('pubuser', widget.user).then((value) {
-          print('pubuser set');
-          final String? pubuser = prefs.getString('pubuser');
-          print(pubuser);
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return Home();
-          }));
+          print(value);
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => Home()));
         });
       }
     });

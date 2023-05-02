@@ -83,7 +83,7 @@ class _homepageState extends State<homepage> {
 
   void mainfunction() {
     // print(auth.currentUser);
-    auth.signOut();
+    // auth.signOut();
     if (auth.currentUser == null)
       Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
     else

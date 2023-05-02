@@ -44,7 +44,7 @@ class _LoginState extends State<Login> {
   Login() async {
     showLoaderDialog(context);
     final uri =
-        Uri.parse('https://singh-publication.onrender.com/api/user/login');
+        Uri.parse('https://singhpublications.onrender.com/api/user/login');
     final headers = {'Content-Type': 'application/json'};
     Map<String, dynamic> body = {
       'email': emailController.text.trim(),
