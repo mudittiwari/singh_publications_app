@@ -1,9 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'dart:ui';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:myapp/page-1/accont-setting.dart';
 import 'package:myapp/page-1/bottomnavbar.dart';
+import 'package:myapp/page-1/login.dart';
 import 'package:myapp/page-1/orders.dart';
 import 'package:myapp/page-1/profile-setting.dart';
 import 'package:myapp/utils.dart';
@@ -17,7 +19,7 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   double baseWidth = 393;
-
+  FirebaseAuth auth = FirebaseAuth.instance;
   @override
   Widget build(BuildContext context) {
     double fem = MediaQuery.of(context).size.width / baseWidth;
@@ -161,26 +163,36 @@ class _ProfileState extends State<Profile> {
                           ),
                         ),
                       ),
-                      Container(
-                        // autogroupyqebjgt (7VJLrPT4FeLr2D6f32Yqeb)
-                        margin: EdgeInsets.fromLTRB(
-                            123 * fem, 0 * fem, 123 * fem, 0 * fem),
-                        width: double.infinity,
-                        height: 36.65 * fem,
-                        decoration: BoxDecoration(
-                          color: Color(0xff315ed2),
-                          borderRadius:
-                              BorderRadius.circular(33.7607650757 * fem),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'Log Out',
-                            style: SafeGoogleFont(
-                              'Inter',
-                              fontSize: 20.2564582825 * ffem,
-                              fontWeight: FontWeight.w500,
-                              height: 1.2125 * ffem / fem,
-                              color: Color(0xffffffff),
+                      GestureDetector(
+                        onTap: () {
+                          auth.signOut().then((value) {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => Login()),
+                            );
+                          });
+                        },
+                        child: Container(
+                          // autogroupyqebjgt (7VJLrPT4FeLr2D6f32Yqeb)
+                          margin: EdgeInsets.fromLTRB(
+                              123 * fem, 0 * fem, 123 * fem, 0 * fem),
+                          width: double.infinity,
+                          height: 36.65 * fem,
+                          decoration: BoxDecoration(
+                            color: Color(0xff315ed2),
+                            borderRadius:
+                                BorderRadius.circular(33.7607650757 * fem),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Log Out',
+                              style: SafeGoogleFont(
+                                'Inter',
+                                fontSize: 20.2564582825 * ffem,
+                                fontWeight: FontWeight.w500,
+                                height: 1.2125 * ffem / fem,
+                                color: Color(0xffffffff),
+                              ),
                             ),
                           ),
                         ),

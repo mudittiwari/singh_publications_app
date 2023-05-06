@@ -27,42 +27,7 @@ class _HomeState extends State<Home> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('pubuser') ?? '';
   }
-  // Login() async {
-  //   showLoaderDialog(context);
-  //   final uri =
-  //       Uri.parse('https://singh-publication.onrender.com/api/user/login');
-  //   final headers = {'Content-Type': 'application/json'};
-  //   Map<String, dynamic> body = {
-  //     'email': emailController.text.trim(),
-  //     'password': passwordController.text.trim()
-  //   };
-  //   String jsonBody = json.encode(body);
-  //   final encoding = Encoding.getByName('utf-8');
 
-  //   Response response = await post(
-  //     uri,
-  //     headers: headers,
-  //     body: jsonBody,
-  //     encoding: encoding,
-  //   );
-
-  //   int statusCode = response.statusCode;
-  //   String responseBody = response.body;
-  //   Navigator.pop(context);
-  //   if (statusCode != 200) {
-  //     print("error");
-  //   } else {
-  //     Navigator.push(
-  //       context,
-  //       MaterialPageRoute(
-  //           builder: (context) => OTP(
-  //                 user: responseBody,
-  //                 mobile: mobileController.text.trim(),
-  //               )),
-  //     );
-  //     print("success");
-  //   }
-  // }
   getproducts() async {
     // print("mudit tiwari");
     final uri = Uri.parse(
@@ -106,6 +71,7 @@ class _HomeState extends State<Home> {
 
   getuser() async {
     String user = await getStringFromPrefs();
+    print(user);
     setState(() {
       this.user = user;
     });

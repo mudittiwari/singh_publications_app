@@ -62,6 +62,7 @@ class _LoginState extends State<Login> {
 
     int statusCode = response.statusCode;
     String responseBody = response.body;
+    print(responseBody);
     Navigator.pop(context);
     if (statusCode != 200) {
       print("error");

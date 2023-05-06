@@ -1,5 +1,14 @@
 // ignore_for_file: prefer_const_constructors
 
+// next time work
+// add to cart working
+// add to wishlist working
+// show items of cart on cart Page
+// show items of wishlist on wishlist Page
+// make product page user interface
+// show profile information in profile page
+// show orders in orders page
+
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -85,9 +94,11 @@ class _homepageState extends State<homepage> {
     // print(auth.currentUser);
     // auth.signOut();
     if (auth.currentUser == null)
-      Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => Login()));
     else
-      Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => Home()));
   }
 
   @override

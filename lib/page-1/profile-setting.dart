@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'dart:ui';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart';
 import 'package:myapp/page-1/bottomnavbar.dart';
 import 'package:myapp/utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileSettings extends StatefulWidget {
   const ProfileSettings({super.key});
@@ -14,6 +18,89 @@ class ProfileSettings extends StatefulWidget {
 
 class _ProfileSettingsState extends State<ProfileSettings> {
   double baseWidth = 393;
+  TextEditingController firstname = TextEditingController();
+  TextEditingController email = TextEditingController();
+  TextEditingController lastname = TextEditingController();
+  String? user;
+  Future<String> getStringFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('pubuser') ?? '';
+  }
+
+  getuser() async {
+    String user = await getStringFromPrefs();
+    setState(() {
+      this.user = user;
+      this.firstname.text = json.decode(user)['firstname'];
+      this.lastname.text = json.decode(user)['lastname'];
+      this.email.text = json.decode(user)['email'];
+    });
+    // return user;
+  }
+
+  showLoaderDialog(BuildContext context) {
+    AlertDialog alert = AlertDialog(
+      content: new Row(
+        children: [
+          CircularProgressIndicator(),
+          Container(
+              margin: EdgeInsets.only(left: 7), child: Text("Loading...")),
+        ],
+      ),
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  updateuser() async {
+    showLoaderDialog(context);
+    final uri = Uri.parse(
+        'https://singhpublications.onrender.com/api/user/updateuser?id=${json.decode(user!)['id']}');
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${json.decode(user!)['accessToken']}'
+    };
+    Map<String, dynamic> body = {
+      "firstname": firstname.text,
+      "lastname": lastname.text,
+      "email": email.text,
+    };
+    String jsonBody = json.encode(body);
+    final encoding = Encoding.getByName('utf-8');
+    Response response = await post(
+      uri,
+      headers: headers,
+      body: jsonBody,
+      encoding: encoding,
+    );
+    int statusCode = response.statusCode;
+    String responseBody = response.body;
+    print(responseBody);
+    if (statusCode == 200) {
+      Navigator.pop(context);
+      var data = json.decode(responseBody);
+      // print(data['wishlist']);
+      data['accessToken'] = json.decode(user!)['accessToken'];
+      var finaldata = json.encode(data);
+      print(finaldata);
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('pubuser', finaldata).then((value) {});
+    } else {
+      Navigator.pop(context);
+      // print("not removed");
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getuser();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +157,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                           child: Padding(
                             padding: const EdgeInsets.only(left: 8.0),
                             child: TextField(
+                              controller: firstname,
                               textAlign: TextAlign.center,
                               decoration: InputDecoration(
                                 border: InputBorder.none,
@@ -101,6 +189,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                           child: Padding(
                             padding: const EdgeInsets.only(left: 8.0),
                             child: TextField(
+                              controller: lastname,
                               textAlign: TextAlign.center,
                               decoration: InputDecoration(
                                 border: InputBorder.none,
@@ -132,6 +221,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                           child: Padding(
                             padding: const EdgeInsets.only(left: 8.0),
                             child: TextField(
+                              controller: email,
                               textAlign: TextAlign.center,
                               decoration: InputDecoration(
                                 border: InputBorder.none,
@@ -148,26 +238,31 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                           ),
                         ),
                       ),
-                      Container(
-                        // autogrouptelt89v (7VHKqv75z932JDXZoPTELT)
-                        margin: EdgeInsets.fromLTRB(
-                            121 * fem, 0 * fem, 125 * fem, 0 * fem),
-                        width: double.infinity,
-                        height: 36.65 * fem,
-                        decoration: BoxDecoration(
-                          color: Color(0xff315ed2),
-                          borderRadius:
-                              BorderRadius.circular(33.7607650757 * fem),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'Submit',
-                            style: SafeGoogleFont(
-                              'Inter',
-                              fontSize: 20.2564582825 * ffem,
-                              fontWeight: FontWeight.w500,
-                              height: 1.2125 * ffem / fem,
-                              color: Color(0xffffffff),
+                      GestureDetector(
+                        onTap: () {
+                          updateuser();
+                        },
+                        child: Container(
+                          // autogrouptelt89v (7VHKqv75z932JDXZoPTELT)
+                          margin: EdgeInsets.fromLTRB(
+                              121 * fem, 0 * fem, 125 * fem, 0 * fem),
+                          width: double.infinity,
+                          height: 36.65 * fem,
+                          decoration: BoxDecoration(
+                            color: Color(0xff315ed2),
+                            borderRadius:
+                                BorderRadius.circular(33.7607650757 * fem),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Submit',
+                              style: SafeGoogleFont(
+                                'Inter',
+                                fontSize: 20.2564582825 * ffem,
+                                fontWeight: FontWeight.w500,
+                                height: 1.2125 * ffem / fem,
+                                color: Color(0xffffffff),
+                              ),
                             ),
                           ),
                         ),

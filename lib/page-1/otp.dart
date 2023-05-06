@@ -45,8 +45,9 @@ class _OTPState extends State<OTP> {
       if (value.user != null) {
         // SharedPreferences.setMockInitialValues({});
         final SharedPreferences prefs = await SharedPreferences.getInstance();
+        print(widget.user);
         await prefs.setString('pubuser', widget.user).then((value) {
-          print(value);
+          // print(value);
           Navigator.push(
               context, MaterialPageRoute(builder: (context) => Home()));
         });

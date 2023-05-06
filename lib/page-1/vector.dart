@@ -15,13 +15,13 @@ class Scene extends StatelessWidget {
       child: Container(
         // vectorAye (1:846)
         width: double.infinity,
-        height: 27*fem,
+        height: 27 * fem,
         child: Image.asset(
           'assets/page-1/images/vector-YiL.png',
-          width: 37.01*fem,
-          height: 27*fem,
+          width: 37.01 * fem,
+          height: 27 * fem,
         ),
       ),
-          );
+    );
   }
 }

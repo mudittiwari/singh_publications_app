@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'dart:ui';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart';
 import 'package:myapp/page-1/bottomnavbar.dart';
 import 'package:myapp/utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BillingAddress extends StatefulWidget {
   const BillingAddress({super.key});
@@ -14,6 +18,100 @@ class BillingAddress extends StatefulWidget {
 
 class _BillingAddressState extends State<BillingAddress> {
   double baseWidth = 393;
+  String? user;
+  TextEditingController house = TextEditingController();
+  TextEditingController street = TextEditingController();
+  TextEditingController city = TextEditingController();
+  TextEditingController area = TextEditingController();
+  TextEditingController pincode = TextEditingController();
+  Future<String> getStringFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('pubuser') ?? '';
+  }
+
+  showLoaderDialog(BuildContext context) {
+    AlertDialog alert = AlertDialog(
+      content: new Row(
+        children: [
+          CircularProgressIndicator(),
+          Container(
+              margin: EdgeInsets.only(left: 7), child: Text("Loading...")),
+        ],
+      ),
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  getuser() async {
+    String user = await getStringFromPrefs();
+    setState(() {
+      this.user = user;
+      this.house.text = json.decode(user)['billing_address']['house'];
+      this.street.text = json.decode(user)['billing_address']['street'];
+      this.area.text = json.decode(user)['billing_address']['area'];
+      this.city.text = json.decode(user)['billing_address']['city'];
+      this.pincode.text =
+          json.decode(user)['billing_address']['pincode'].toString();
+      // this.firstname.text = json.decode(user)['firstname'];
+      // this.lastname.text = json.decode(user)['lastname'];
+      // this.email.text = json.decode(user)['email'];
+    });
+    print(user);
+    // return user;
+  }
+
+  updateuser() async {
+    showLoaderDialog(context);
+    final uri = Uri.parse(
+        'https://singhpublications.onrender.com/api/user/updatebillingaddress?id=${json.decode(user!)['id']}');
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${json.decode(user!)['accessToken']}'
+    };
+    Map<String, dynamic> body = {
+      "house": house.text,
+      "street": street.text,
+      "area": area.text,
+      "city": city.text,
+      "pincode": int.parse(pincode.text),
+    };
+    String jsonBody = json.encode(body);
+    final encoding = Encoding.getByName('utf-8');
+    Response response = await post(
+      uri,
+      headers: headers,
+      body: jsonBody,
+      encoding: encoding,
+    );
+    int statusCode = response.statusCode;
+    String responseBody = response.body;
+    print(responseBody);
+    if (statusCode == 200) {
+      Navigator.pop(context);
+      var data = json.decode(responseBody);
+      // print(data['wishlist']);
+      data['accessToken'] = json.decode(user!)['accessToken'];
+      var finaldata = json.encode(data);
+      print(finaldata);
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('pubuser', finaldata).then((value) {});
+    } else {
+      Navigator.pop(context);
+      // print("not removed");
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getuser();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +162,7 @@ class _BillingAddressState extends State<BillingAddress> {
                     child: Padding(
                       padding: const EdgeInsets.only(left: 8.0),
                       child: TextField(
+                        controller: house,
                         textAlign: TextAlign.center,
                         decoration: InputDecoration(
                           border: InputBorder.none,
@@ -95,6 +194,7 @@ class _BillingAddressState extends State<BillingAddress> {
                     child: Padding(
                       padding: const EdgeInsets.only(left: 8.0),
                       child: TextField(
+                        controller: street,
                         textAlign: TextAlign.center,
                         decoration: InputDecoration(
                           border: InputBorder.none,
@@ -126,6 +226,7 @@ class _BillingAddressState extends State<BillingAddress> {
                     child: Padding(
                       padding: const EdgeInsets.only(left: 8.0),
                       child: TextField(
+                        controller: area,
                         textAlign: TextAlign.center,
                         decoration: InputDecoration(
                           border: InputBorder.none,
@@ -157,6 +258,7 @@ class _BillingAddressState extends State<BillingAddress> {
                     child: Padding(
                       padding: const EdgeInsets.only(left: 8.0),
                       child: TextField(
+                        controller: city,
                         textAlign: TextAlign.center,
                         decoration: InputDecoration(
                           border: InputBorder.none,
@@ -188,6 +290,7 @@ class _BillingAddressState extends State<BillingAddress> {
                     child: Padding(
                       padding: const EdgeInsets.only(left: 8.0),
                       child: TextField(
+                        controller: pincode,
                         textAlign: TextAlign.center,
                         decoration: InputDecoration(
                           border: InputBorder.none,
@@ -204,25 +307,30 @@ class _BillingAddressState extends State<BillingAddress> {
                     ),
                   ),
                 ),
-                Container(
-                  // autogroupykuhWhe (7VJcE7VtLSsEABGcYJykuh)
-                  margin: EdgeInsets.fromLTRB(
-                      121 * fem, 0 * fem, 125 * fem, 0 * fem),
-                  width: double.infinity,
-                  height: 36.65 * fem,
-                  decoration: BoxDecoration(
-                    color: Color(0xff315ed2),
-                    borderRadius: BorderRadius.circular(33.7607650757 * fem),
-                  ),
-                  child: Center(
-                    child: Text(
-                      'Submit',
-                      style: SafeGoogleFont(
-                        'Inter',
-                        fontSize: 20.2564582825 * ffem,
-                        fontWeight: FontWeight.w500,
-                        height: 1.2125 * ffem / fem,
-                        color: Color(0xffffffff),
+                GestureDetector(
+                  onTap: () {
+                    updateuser();
+                  },
+                  child: Container(
+                    // autogroupykuhWhe (7VJcE7VtLSsEABGcYJykuh)
+                    margin: EdgeInsets.fromLTRB(
+                        121 * fem, 0 * fem, 125 * fem, 0 * fem),
+                    width: double.infinity,
+                    height: 36.65 * fem,
+                    decoration: BoxDecoration(
+                      color: Color(0xff315ed2),
+                      borderRadius: BorderRadius.circular(33.7607650757 * fem),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Submit',
+                        style: SafeGoogleFont(
+                          'Inter',
+                          fontSize: 20.2564582825 * ffem,
+                          fontWeight: FontWeight.w500,
+                          height: 1.2125 * ffem / fem,
+                          color: Color(0xffffffff),
+                        ),
                       ),
                     ),
                   ),
