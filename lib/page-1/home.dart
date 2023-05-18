@@ -1,16 +1,222 @@
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously, use_key_in_widget_constructors, prefer_const_literals_to_create_immutables
+
 import 'dart:convert';
 import 'dart:ffi';
 // import 'dart:html';
 
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:flutter/gestures.dart';
 import 'dart:ui';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart';
+import 'package:myapp/page-1/Contact.dart';
 import 'package:myapp/page-1/bottomnavbar.dart';
+import 'package:myapp/page-1/cart.dart';
 import 'package:myapp/page-1/product-page.dart';
 import 'package:myapp/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+class BookComp extends StatelessWidget {
+  final dynamic prod;
+  String? user;
+  Function callback;
+  BookComp({required this.prod, this.user, required this.callback});
+  showLoaderDialog(BuildContext context) {
+    AlertDialog alert = AlertDialog(
+      content: new Row(
+        children: [
+          CircularProgressIndicator(),
+          Container(
+              margin: EdgeInsets.only(left: 7), child: Text("Loading...")),
+        ],
+      ),
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  showMessageDialog(BuildContext context, String message) {
+    AlertDialog alert = AlertDialog(
+      content: new Row(
+        children: [
+          Container(margin: EdgeInsets.only(left: 7), child: Text(message)),
+        ],
+      ),
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  addtowishlist(BuildContext context) async {
+    showLoaderDialog(context);
+    final uri = Uri.parse(
+        'https://singhpublications.onrender.com/api/user/addtowishlist?id=${json.decode(user!)['id']}');
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${json.decode(user!)['accessToken']}'
+    };
+    Map<String, dynamic> body = {
+      "product_id": json.decode(prod)['id'],
+    };
+    String jsonBody = json.encode(body);
+    final encoding = Encoding.getByName('utf-8');
+
+    Response response = await post(
+      uri,
+      headers: headers,
+      body: jsonBody,
+      encoding: encoding,
+    );
+
+    int statusCode = response.statusCode;
+    String responseBody = response.body;
+    Navigator.pop(context);
+    print(responseBody);
+    if (responseBody == '"product already in wishlist"') {
+      showMessageDialog(context, "Product already in wishlist");
+      // showmessage(context, "Product already in wishlist");
+    } else if (statusCode != 200) {
+      showMessageDialog(context, "Error");
+      // showmessage(context, "error");
+    } else {
+      print("success");
+      var data = json.decode(responseBody);
+      // print(data['wishlist']);
+      data['accessToken'] = json.decode(user!)['accessToken'];
+      var finaldata = json.encode(data);
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('pubuser', finaldata).then((value) async {
+        showMessageDialog(context, "Product added to wishlist");
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Container(
+          margin: EdgeInsets.all(8),
+          padding: EdgeInsets.all(2),
+          decoration: BoxDecoration(
+            border: Border.all(color: Color(0xFF777777), width: 1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          width: MediaQuery.of(context).size.width * 0.45,
+          height: 800,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/product', arguments: prod);
+                },
+                child: Image.network(
+                  json.decode(prod)['image_url'],
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              SizedBox(height: 4),
+              Padding(
+                padding: const EdgeInsets.only(left: 4.0),
+                child: Text(
+                  json.decode(prod)['title'],
+                  style: TextStyle(
+                      color: Color(0xFF315ED2),
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              SizedBox(height: 2),
+              Padding(
+                padding: const EdgeInsets.only(left: 4.0),
+                child: Text(
+                  json.decode(prod)['category'],
+                  style: TextStyle(
+                      color: Color(0xFF777777),
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+              SizedBox(height: 2),
+              Padding(
+                padding: const EdgeInsets.only(left: 4.0),
+                child: Text(
+                  json.decode(prod)['subtitle'],
+                  style: TextStyle(
+                      color: Color(0xFF777777),
+                      fontSize: 12,
+                      overflow: TextOverflow.ellipsis,
+                      fontWeight: FontWeight.w500),
+                ),
+              ),
+              SizedBox(height: 4),
+              Padding(
+                padding: const EdgeInsets.only(left: 4.0),
+                child: Row(
+                  children: [
+                    Text(
+                      json.decode(prod)['rating'].toString(),
+                      style: TextStyle(
+                          color: Color(0xFF777777),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500),
+                    ),
+                    SizedBox(width: 2),
+                    Image.asset('assets/page-1/images/star.png', width: 20),
+                    Image.asset('assets/page-1/images/star.png', width: 20),
+                    Image.asset('assets/page-1/images/star.png', width: 20),
+                    Image.asset('assets/page-1/images/star.png', width: 20),
+                    Image.asset('assets/page-1/images/star.png', width: 20),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        Align(
+            alignment: Alignment.bottomRight,
+            child: GestureDetector(
+              onTap: () {
+                addtowishlist(context);
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 20.0, right: 16),
+                child: Container(
+                  height: 50,
+                  width: 50,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                  child: Center(
+                    child: Image(
+                      image: AssetImage("assets/page-1/images/save.png"),
+                      width: 30,
+                    ),
+                  ),
+                ),
+              ),
+            )),
+      ],
+    );
+  }
+}
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -22,7 +228,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   double baseWidth = 393;
   String? user;
-  var products = <List<dynamic>>[];
+  var products = [];
   Future<String> getStringFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('pubuser') ?? '';
@@ -52,17 +258,9 @@ class _HomeState extends State<Home> {
       print("error");
     } else {
       var products = jsonDecode(responseBody);
-      var pairs = <List<dynamic>>[];
-      for (var i = 0; i < products.length; i += 2) {
-        if (i + 1 < products.length) {
-          pairs.add([products[i], products[i + 1]]);
-        } else {
-          pairs.add([products[i]]);
-        }
-      }
-      // print(pairs);
+      print(products[0]);
       setState(() {
-        this.products = pairs;
+        this.products = products;
         return;
       });
       // print(products);
@@ -130,7 +328,12 @@ class _HomeState extends State<Home> {
                       size: 30,
                       color: Color(0xff315ED2),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return Contact();
+                      }));
+                    },
                   )
                 ],
               ),
@@ -146,821 +349,359 @@ class _HomeState extends State<Home> {
             );
           } else {
             return SingleChildScrollView(
-              child: Container(
-                // autogroupkfqd5Ct (7VHxSwwv6cKvZLn9bJkFqD)
-                padding:
-                    EdgeInsets.fromLTRB(11 * fem, 10 * fem, 10 * fem, 43 * fem),
-                width: double.infinity,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
-                      // autogroupt4s7PjN (7VHoMxb1fFqqbEzPfhT4S7)
-                      margin: EdgeInsets.fromLTRB(
-                          0 * fem, 0 * fem, 0 * fem, 9 * fem),
-                      padding: EdgeInsets.fromLTRB(
-                          13 * fem, 15 * fem, 13 * fem, 12 * fem),
-                      width: double.infinity,
-                      height: 117 * fem,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20 * fem),
-                        color: Color(0x7f315ed2),
-                        image: DecorationImage(
-                          fit: BoxFit.cover,
-                          image: AssetImage(
-                            'assets/page-1/images/rectangle-3-bg.png',
-                          ),
-                        ),
-                      ),
-                      child: Center(
-                        // getretail20discountonsigningup (1:454)
-                        child: Text(""),
-                      ),
-                    ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    // autogroupt4s7PjN (7VHoMxb1fFqqbEzPfhT4S7)
+                    margin:
+                        EdgeInsets.fromLTRB(0 * fem, 0 * fem, 0 * fem, 9 * fem),
+                    padding: EdgeInsets.fromLTRB(
+                        13 * fem, 15 * fem, 13 * fem, 12 * fem),
+                    width: double.infinity,
+                    height: 200,
 
-                    Container(
-                      // bestsellerswEQ (1:422)
-                      margin: EdgeInsets.fromLTRB(
-                          8 * fem, 10 * fem, 0 * fem, 10 * fem),
-                      child: Text(
-                        'Best Sellers',
-                        style: SafeGoogleFont(
-                          'Inter',
-                          fontSize: 20 * ffem,
-                          fontWeight: FontWeight.w500,
-                          height: 1.2125 * ffem / fem,
-                          color: Color(0xff315ed2),
-                        ),
-                      ),
-                    ),
-                    //map the products and create a text widget
-                    Column(
-                      children: products.map((e) {
-                        if (e.length == 2) {
-                          return Container(
-                            // autogroup6qbhTTe (7VHoinKebyeVvTJxTj6qbH)
-                            margin: EdgeInsets.fromLTRB(
-                                0 * fem, 0 * fem, 0 * fem, 11 * fem),
-                            width: double.infinity,
-                            height: 278 * fem,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            Product(product: e[0]),
-                                      ),
-                                    );
-                                  },
-                                  child: Container(
-                                    // group3Asr (1:423)
-                                    margin: EdgeInsets.fromLTRB(
-                                        0 * fem, 0 * fem, 11.8 * fem, 0 * fem),
-                                    padding: EdgeInsets.fromLTRB(10.87 * fem,
-                                        7 * fem, 12.33 * fem, 12.43 * fem),
-                                    width: 158.2 * fem,
-                                    // height: double.infinity,
-                                    decoration: BoxDecoration(
-                                      border:
-                                          Border.all(color: Color(0xffd1d1d1)),
-                                      color: Color(0xffffffff),
-                                      borderRadius: BorderRadius.circular(
-                                          12.076125145 * fem),
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Container(
-                                          // image1SaU (1:425)
-                                          margin: EdgeInsets.fromLTRB(0 * fem,
-                                              0 * fem, 0.31 * fem, 4.9 * fem),
-                                          width: 130.42 * fem,
-                                          // height: 191.1 * fem,
-                                          child: Image.asset(
-                                            'assets/page-1/images/image-1-7Jg.png',
-                                          ),
-                                        ),
-                                        Text(
-                                          // thinkoutsidetheboxrPJ (1:426)
-                                          e[0]['title'],
-                                          style: SafeGoogleFont(
-                                            'Inter',
-                                            fontSize: 12.2032423019 * ffem,
-                                            fontWeight: FontWeight.w700,
-                                            height: 1.2125 * ffem / fem,
-                                            color: Color(0xff315ed2),
-                                          ),
-                                        ),
-                                        Container(
-                                          // paperbackzEc (1:427)
-                                          margin: EdgeInsets.fromLTRB(0 * fem,
-                                              0 * fem, 69 * fem, 2 * fem),
-                                          child: Text(
-                                            e[0]['category'],
-                                            style: SafeGoogleFont(
-                                              'Inter',
-                                              fontSize: 12.2032423019 * ffem,
-                                              fontWeight: FontWeight.w700,
-                                              height: 1.2125 * ffem / fem,
-                                              color: Color(0xff777777),
-                                            ),
-                                          ),
-                                        ),
-                                        Container(
-                                          // autogroupmmcf6oS (7VHpC23GQ2piwTR9LemMCF)
-                                          margin: EdgeInsets.fromLTRB(0 * fem,
-                                              0 * fem, 6.99 * fem, 0 * fem),
-                                          width: double.infinity,
-                                          height: 30.57 * fem,
-                                          child: Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              Container(
-                                                // autogrouppqrrRap (7VHpRbUyeq6zekVppLpQRR)
-                                                margin: EdgeInsets.fromLTRB(
-                                                    0 * fem,
-                                                    0 * fem,
-                                                    13.27 * fem,
-                                                    0 * fem),
-                                                height: double.infinity,
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Container(
-                                                      // artlifegoalsxKr (1:428)
-                                                      margin:
-                                                          EdgeInsets.fromLTRB(
-                                                              0 * fem,
-                                                              0 * fem,
-                                                              0 * fem,
-                                                              0.57 * fem),
-                                                      child: Text(
-                                                        e[0]['subtitle'],
-                                                        style: SafeGoogleFont(
-                                                          'Inter',
-                                                          fontSize:
-                                                              12.2032423019 *
-                                                                  ffem,
-                                                          fontWeight:
-                                                              FontWeight.w400,
-                                                          height: 1.2125 *
-                                                              ffem /
-                                                              fem,
-                                                          color:
-                                                              Color(0xff777777),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                      // autogroupz63mU3J (7VHpcbAf7QK6yFGtgAZ63M)
-                                                      child: Row(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Container(
-                                                            // cfJ (1:429)
-                                                            margin: EdgeInsets
-                                                                .fromLTRB(
-                                                                    0 * fem,
-                                                                    0 * fem,
-                                                                    2.11 * fem,
-                                                                    0 * fem),
-                                                            child: Text(
-                                                              e[0]['rating']
-                                                                  .toString(),
-                                                              style:
-                                                                  SafeGoogleFont(
-                                                                'Inter',
-                                                                fontSize:
-                                                                    12.2032423019 *
-                                                                        ffem,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w400,
-                                                                height: 1.2125 *
-                                                                    ffem /
-                                                                    fem,
-                                                                color: Color(
-                                                                    0xff777777),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          Container(
-                                                            // vectorvvt (1:430)
-                                                            margin: EdgeInsets
-                                                                .fromLTRB(
-                                                                    0 * fem,
-                                                                    0 * fem,
-                                                                    4.91 * fem,
-                                                                    0.04 * fem),
-                                                            width: 12 * fem,
-                                                            height: 12.47 * fem,
-                                                            child: Image.asset(
-                                                              'assets/page-1/images/vector-gL8.png',
-                                                              width: 12 * fem,
-                                                              height:
-                                                                  12.47 * fem,
-                                                            ),
-                                                          ),
-                                                          Container(
-                                                            // vector3Ep (1:431)
-                                                            margin: EdgeInsets
-                                                                .fromLTRB(
-                                                                    0 * fem,
-                                                                    0 * fem,
-                                                                    4.91 * fem,
-                                                                    0.04 * fem),
-                                                            width: 12 * fem,
-                                                            height: 12.47 * fem,
-                                                            child: Image.asset(
-                                                              'assets/page-1/images/vector-YTa.png',
-                                                              width: 12 * fem,
-                                                              height:
-                                                                  12.47 * fem,
-                                                            ),
-                                                          ),
-                                                          Container(
-                                                            // vectorxsa (1:432)
-                                                            margin: EdgeInsets
-                                                                .fromLTRB(
-                                                                    0 * fem,
-                                                                    0 * fem,
-                                                                    4.91 * fem,
-                                                                    0.04 * fem),
-                                                            width: 12 * fem,
-                                                            height: 12.47 * fem,
-                                                            child: Image.asset(
-                                                              'assets/page-1/images/vector-SPS.png',
-                                                              width: 12 * fem,
-                                                              height:
-                                                                  12.47 * fem,
-                                                            ),
-                                                          ),
-                                                          Container(
-                                                            // vectorszY (1:433)
-                                                            margin: EdgeInsets
-                                                                .fromLTRB(
-                                                                    0 * fem,
-                                                                    0 * fem,
-                                                                    0 * fem,
-                                                                    0.04 * fem),
-                                                            width: 12 * fem,
-                                                            height: 12.47 * fem,
-                                                            child: Image.asset(
-                                                              'assets/page-1/images/vector-NnU.png',
-                                                              width: 12 * fem,
-                                                              height:
-                                                                  12.47 * fem,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              Container(
-                                                // group2nrc (1:434)
-                                                margin: EdgeInsets.fromLTRB(
-                                                    0 * fem,
-                                                    0.57 * fem,
-                                                    0 * fem,
-                                                    0 * fem),
-                                                width: 21.74 * fem,
-                                                height: 22.44 * fem,
-                                                child: Image.asset(
-                                                  'assets/page-1/images/group-2-YRE.png',
-                                                  width: 21.74 * fem,
-                                                  height: 22.44 * fem,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                    child: CarouselSlider(
+                      options: CarouselOptions(
+                          height: 250.0,
+                          enableInfiniteScroll: true,
+                          enlargeCenterPage: true,
+                          // autoPlayInterval: Duration(seconds: 2),
+                          autoPlayInterval: Duration(seconds: 6),
+                          autoPlayCurve: Curves.easeInOutQuart,
+                          autoPlayAnimationDuration:
+                              Duration(milliseconds: 1500),
+                          autoPlay: true),
+                      items: [
+                        "homepagebg.png",
+                        "homepagebg2.png",
+                        "homepagebg3.png"
+                      ].map((i) {
+                        return Builder(
+                          builder: (BuildContext context) {
+                            return Container(
+                                width: MediaQuery.of(context).size.width,
+                                margin: EdgeInsets.symmetric(horizontal: 0.0),
+                                decoration: BoxDecoration(
+
+                                    // color: Colors.pink,
+                                    borderRadius: BorderRadius.circular(12.0)),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(0),
+                                  child: Image(
+                                    image:
+                                        AssetImage("assets/page-1/images/$i"),
+                                    fit: BoxFit.fill,
                                   ),
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => Product(
-                                          product: e[1],
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  child: Container(
-                                    // group3Asr (1:423)
-                                    margin: EdgeInsets.fromLTRB(
-                                        0 * fem, 0 * fem, 11.8 * fem, 0 * fem),
-                                    padding: EdgeInsets.fromLTRB(10.87 * fem,
-                                        7 * fem, 12.33 * fem, 12.43 * fem),
-                                    width: 158.2 * fem,
-                                    // height: double.infinity,
-                                    decoration: BoxDecoration(
-                                      border:
-                                          Border.all(color: Color(0xffd1d1d1)),
-                                      color: Color(0xffffffff),
-                                      borderRadius: BorderRadius.circular(
-                                          12.076125145 * fem),
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Container(
-                                          // image1SaU (1:425)
-                                          margin: EdgeInsets.fromLTRB(0 * fem,
-                                              0 * fem, 0.31 * fem, 4.9 * fem),
-                                          width: 130.42 * fem,
-                                          // height: 191.1 * fem,
-                                          child: Image.asset(
-                                            'assets/page-1/images/image-1-7Jg.png',
-                                          ),
-                                        ),
-                                        Text(
-                                          // thinkoutsidetheboxrPJ (1:426)
-                                          e[1]['title'],
-                                          style: SafeGoogleFont(
-                                            'Inter',
-                                            fontSize: 12.2032423019 * ffem,
-                                            fontWeight: FontWeight.w700,
-                                            height: 1.2125 * ffem / fem,
-                                            color: Color(0xff315ed2),
-                                          ),
-                                        ),
-                                        Container(
-                                          // paperbackzEc (1:427)
-                                          margin: EdgeInsets.fromLTRB(0 * fem,
-                                              0 * fem, 69 * fem, 2 * fem),
-                                          child: Text(
-                                            e[1]['category'],
-                                            style: SafeGoogleFont(
-                                              'Inter',
-                                              fontSize: 12.2032423019 * ffem,
-                                              fontWeight: FontWeight.w700,
-                                              height: 1.2125 * ffem / fem,
-                                              color: Color(0xff777777),
-                                            ),
-                                          ),
-                                        ),
-                                        Container(
-                                          // autogroupmmcf6oS (7VHpC23GQ2piwTR9LemMCF)
-                                          margin: EdgeInsets.fromLTRB(0 * fem,
-                                              0 * fem, 6.99 * fem, 0 * fem),
-                                          width: double.infinity,
-                                          height: 30.57 * fem,
-                                          child: Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              Container(
-                                                // autogrouppqrrRap (7VHpRbUyeq6zekVppLpQRR)
-                                                margin: EdgeInsets.fromLTRB(
-                                                    0 * fem,
-                                                    0 * fem,
-                                                    13.27 * fem,
-                                                    0 * fem),
-                                                height: double.infinity,
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Container(
-                                                      // artlifegoalsxKr (1:428)
-                                                      margin:
-                                                          EdgeInsets.fromLTRB(
-                                                              0 * fem,
-                                                              0 * fem,
-                                                              0 * fem,
-                                                              0.57 * fem),
-                                                      child: Text(
-                                                        e[1]['subtitle'],
-                                                        style: SafeGoogleFont(
-                                                          'Inter',
-                                                          fontSize:
-                                                              12.2032423019 *
-                                                                  ffem,
-                                                          fontWeight:
-                                                              FontWeight.w400,
-                                                          height: 1.2125 *
-                                                              ffem /
-                                                              fem,
-                                                          color:
-                                                              Color(0xff777777),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                      // autogroupz63mU3J (7VHpcbAf7QK6yFGtgAZ63M)
-                                                      child: Row(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Container(
-                                                            // cfJ (1:429)
-                                                            margin: EdgeInsets
-                                                                .fromLTRB(
-                                                                    0 * fem,
-                                                                    0 * fem,
-                                                                    2.11 * fem,
-                                                                    0 * fem),
-                                                            child: Text(
-                                                              e[1]['rating']
-                                                                  .toString(),
-                                                              style:
-                                                                  SafeGoogleFont(
-                                                                'Inter',
-                                                                fontSize:
-                                                                    12.2032423019 *
-                                                                        ffem,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w400,
-                                                                height: 1.2125 *
-                                                                    ffem /
-                                                                    fem,
-                                                                color: Color(
-                                                                    0xff777777),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          Container(
-                                                            // vectorvvt (1:430)
-                                                            margin: EdgeInsets
-                                                                .fromLTRB(
-                                                                    0 * fem,
-                                                                    0 * fem,
-                                                                    4.91 * fem,
-                                                                    0.04 * fem),
-                                                            width: 12 * fem,
-                                                            height: 12.47 * fem,
-                                                            child: Image.asset(
-                                                              'assets/page-1/images/vector-gL8.png',
-                                                              width: 12 * fem,
-                                                              height:
-                                                                  12.47 * fem,
-                                                            ),
-                                                          ),
-                                                          Container(
-                                                            // vector3Ep (1:431)
-                                                            margin: EdgeInsets
-                                                                .fromLTRB(
-                                                                    0 * fem,
-                                                                    0 * fem,
-                                                                    4.91 * fem,
-                                                                    0.04 * fem),
-                                                            width: 12 * fem,
-                                                            height: 12.47 * fem,
-                                                            child: Image.asset(
-                                                              'assets/page-1/images/vector-YTa.png',
-                                                              width: 12 * fem,
-                                                              height:
-                                                                  12.47 * fem,
-                                                            ),
-                                                          ),
-                                                          Container(
-                                                            // vectorxsa (1:432)
-                                                            margin: EdgeInsets
-                                                                .fromLTRB(
-                                                                    0 * fem,
-                                                                    0 * fem,
-                                                                    4.91 * fem,
-                                                                    0.04 * fem),
-                                                            width: 12 * fem,
-                                                            height: 12.47 * fem,
-                                                            child: Image.asset(
-                                                              'assets/page-1/images/vector-SPS.png',
-                                                              width: 12 * fem,
-                                                              height:
-                                                                  12.47 * fem,
-                                                            ),
-                                                          ),
-                                                          Container(
-                                                            // vectorszY (1:433)
-                                                            margin: EdgeInsets
-                                                                .fromLTRB(
-                                                                    0 * fem,
-                                                                    0 * fem,
-                                                                    0 * fem,
-                                                                    0.04 * fem),
-                                                            width: 12 * fem,
-                                                            height: 12.47 * fem,
-                                                            child: Image.asset(
-                                                              'assets/page-1/images/vector-NnU.png',
-                                                              width: 12 * fem,
-                                                              height:
-                                                                  12.47 * fem,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              Container(
-                                                // group2nrc (1:434)
-                                                margin: EdgeInsets.fromLTRB(
-                                                    0 * fem,
-                                                    0.57 * fem,
-                                                    0 * fem,
-                                                    0 * fem),
-                                                width: 21.74 * fem,
-                                                height: 22.44 * fem,
-                                                child: Image.asset(
-                                                  'assets/page-1/images/group-2-YRE.png',
-                                                  width: 21.74 * fem,
-                                                  height: 22.44 * fem,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        } else {
-                          print(e);
-                          return Container(
-                            // autogroup6qbhTTe (7VHoinKebyeVvTJxTj6qbH)
-                            margin: EdgeInsets.fromLTRB(
-                                0 * fem, 0 * fem, 0 * fem, 11 * fem),
-                            width: double.infinity,
-                            height: 278 * fem,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => Product(
-                                          product: json.encode(e[0]),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  child: Container(
-                                    // group3Asr (1:423)
-                                    margin: EdgeInsets.fromLTRB(
-                                        0 * fem, 0 * fem, 11.8 * fem, 0 * fem),
-                                    padding: EdgeInsets.fromLTRB(10.87 * fem,
-                                        7 * fem, 12.33 * fem, 12.43 * fem),
-                                    width: 158.2 * fem,
-                                    // height: double.infinity,
-                                    decoration: BoxDecoration(
-                                      border:
-                                          Border.all(color: Color(0xffd1d1d1)),
-                                      color: Color(0xffffffff),
-                                      borderRadius: BorderRadius.circular(
-                                          12.076125145 * fem),
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Container(
-                                          // image1SaU (1:425)
-                                          margin: EdgeInsets.fromLTRB(0 * fem,
-                                              0 * fem, 0.31 * fem, 4.9 * fem),
-                                          width: 130.42 * fem,
-                                          // height: 191.1 * fem,
-                                          child: Image.asset(
-                                            'assets/page-1/images/image-1-7Jg.png',
-                                          ),
-                                        ),
-                                        Text(
-                                          // thinkoutsidetheboxrPJ (1:426)
-                                          e[0]['title'],
-                                          style: SafeGoogleFont(
-                                            'Inter',
-                                            fontSize: 12.2032423019 * ffem,
-                                            fontWeight: FontWeight.w700,
-                                            height: 1.2125 * ffem / fem,
-                                            color: Color(0xff315ed2),
-                                          ),
-                                        ),
-                                        Container(
-                                          // paperbackzEc (1:427)
-                                          margin: EdgeInsets.fromLTRB(0 * fem,
-                                              0 * fem, 69 * fem, 2 * fem),
-                                          child: Text(
-                                            e[0]['category'],
-                                            style: SafeGoogleFont(
-                                              'Inter',
-                                              fontSize: 12.2032423019 * ffem,
-                                              fontWeight: FontWeight.w700,
-                                              height: 1.2125 * ffem / fem,
-                                              color: Color(0xff777777),
-                                            ),
-                                          ),
-                                        ),
-                                        Container(
-                                          // autogroupmmcf6oS (7VHpC23GQ2piwTR9LemMCF)
-                                          margin: EdgeInsets.fromLTRB(0 * fem,
-                                              0 * fem, 6.99 * fem, 0 * fem),
-                                          width: double.infinity,
-                                          height: 30.57 * fem,
-                                          child: Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              Container(
-                                                // autogrouppqrrRap (7VHpRbUyeq6zekVppLpQRR)
-                                                margin: EdgeInsets.fromLTRB(
-                                                    0 * fem,
-                                                    0 * fem,
-                                                    13.27 * fem,
-                                                    0 * fem),
-                                                height: double.infinity,
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Container(
-                                                      // artlifegoalsxKr (1:428)
-                                                      margin:
-                                                          EdgeInsets.fromLTRB(
-                                                              0 * fem,
-                                                              0 * fem,
-                                                              0 * fem,
-                                                              0.57 * fem),
-                                                      child: Text(
-                                                        e[0]['subtitle'],
-                                                        style: SafeGoogleFont(
-                                                          'Inter',
-                                                          fontSize:
-                                                              12.2032423019 *
-                                                                  ffem,
-                                                          fontWeight:
-                                                              FontWeight.w400,
-                                                          height: 1.2125 *
-                                                              ffem /
-                                                              fem,
-                                                          color:
-                                                              Color(0xff777777),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                      // autogroupz63mU3J (7VHpcbAf7QK6yFGtgAZ63M)
-                                                      child: Row(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Container(
-                                                            // cfJ (1:429)
-                                                            margin: EdgeInsets
-                                                                .fromLTRB(
-                                                                    0 * fem,
-                                                                    0 * fem,
-                                                                    2.11 * fem,
-                                                                    0 * fem),
-                                                            child: Text(
-                                                              e[0]['rating']
-                                                                  .toString(),
-                                                              style:
-                                                                  SafeGoogleFont(
-                                                                'Inter',
-                                                                fontSize:
-                                                                    12.2032423019 *
-                                                                        ffem,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w400,
-                                                                height: 1.2125 *
-                                                                    ffem /
-                                                                    fem,
-                                                                color: Color(
-                                                                    0xff777777),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          Container(
-                                                            // vectorvvt (1:430)
-                                                            margin: EdgeInsets
-                                                                .fromLTRB(
-                                                                    0 * fem,
-                                                                    0 * fem,
-                                                                    4.91 * fem,
-                                                                    0.04 * fem),
-                                                            width: 12 * fem,
-                                                            height: 12.47 * fem,
-                                                            child: Image.asset(
-                                                              'assets/page-1/images/vector-gL8.png',
-                                                              width: 12 * fem,
-                                                              height:
-                                                                  12.47 * fem,
-                                                            ),
-                                                          ),
-                                                          Container(
-                                                            // vector3Ep (1:431)
-                                                            margin: EdgeInsets
-                                                                .fromLTRB(
-                                                                    0 * fem,
-                                                                    0 * fem,
-                                                                    4.91 * fem,
-                                                                    0.04 * fem),
-                                                            width: 12 * fem,
-                                                            height: 12.47 * fem,
-                                                            child: Image.asset(
-                                                              'assets/page-1/images/vector-YTa.png',
-                                                              width: 12 * fem,
-                                                              height:
-                                                                  12.47 * fem,
-                                                            ),
-                                                          ),
-                                                          Container(
-                                                            // vectorxsa (1:432)
-                                                            margin: EdgeInsets
-                                                                .fromLTRB(
-                                                                    0 * fem,
-                                                                    0 * fem,
-                                                                    4.91 * fem,
-                                                                    0.04 * fem),
-                                                            width: 12 * fem,
-                                                            height: 12.47 * fem,
-                                                            child: Image.asset(
-                                                              'assets/page-1/images/vector-SPS.png',
-                                                              width: 12 * fem,
-                                                              height:
-                                                                  12.47 * fem,
-                                                            ),
-                                                          ),
-                                                          Container(
-                                                            // vectorszY (1:433)
-                                                            margin: EdgeInsets
-                                                                .fromLTRB(
-                                                                    0 * fem,
-                                                                    0 * fem,
-                                                                    0 * fem,
-                                                                    0.04 * fem),
-                                                            width: 12 * fem,
-                                                            height: 12.47 * fem,
-                                                            child: Image.asset(
-                                                              'assets/page-1/images/vector-NnU.png',
-                                                              width: 12 * fem,
-                                                              height:
-                                                                  12.47 * fem,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              Container(
-                                                // group2nrc (1:434)
-                                                margin: EdgeInsets.fromLTRB(
-                                                    0 * fem,
-                                                    0.57 * fem,
-                                                    0 * fem,
-                                                    0 * fem),
-                                                width: 21.74 * fem,
-                                                height: 22.44 * fem,
-                                                child: Image.asset(
-                                                  'assets/page-1/images/group-2-YRE.png',
-                                                  width: 21.74 * fem,
-                                                  height: 22.44 * fem,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }
+                                ));
+                          },
+                        );
                       }).toList(),
                     ),
-                  ],
-                ),
+                  ),
+
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: 200,
+                          padding:
+                              EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                          child: Image.asset('assets/page-1/images/author.png',
+                              fit: BoxFit.contain),
+                        ),
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          padding:
+                              EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Dr. (Prof) Sher Singh Morodiya',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                  color: Color(0xFF315ED2),
+                                ),
+                              ),
+                              Text(
+                                'Director & Author (Singh Publication)',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                  color: Color(0xFF315ED2),
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              Text(
+                                'Dr. (Prof.) Sher Singh Morodiya, received his Master of Nursing Degree from Raj Kumari Amrit Kaur College of Nursing, University of Delhi. He has got Ph.D. Degree in 2013. He started his career after General Nursing Diploma as Basic Nurse at Government dispensary in 1984 and step by step; obtained a chance to work on the post of the Officer on Special Duty to the Additional Chief Secretary (Medical & Health) along with the responsibility of Deputy Director (Nursing) i.e. highest post in Government of Rajasthan for nursing personnel. He is having 39 Years of experience in the field of nursing He has lot of confidence in area of teaching, guiding, examining/evaluating, care of clients, research and management/administrationat various levels of health care settings. He is author and translator of books. He is Editor-in-Chief and member of editorial board in seven peer reviewed/refereed journals from India and abroad. He has been presented many research papers International Conferences and four in National conferences. He has received BEST PAPER AWARD in an International Conference held in 2019. He is life time member in ten professional bodies.',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black,
+                                ),
+                                textAlign: TextAlign.justify,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  //map the products and create a text widget
+                  Padding(
+                    padding: const EdgeInsets.only(top: 18.0),
+                    child: Text(
+                      'Best Sellers',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: Color(0xFF315ED2),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: products.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                          mainAxisExtent: 380),
+                      itemBuilder: (context, index) {
+                        final item = products[index];
+
+                        return BookComp(
+                          prod: json.encode(item),
+                          user: user,
+                          callback: getuser,
+                        );
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Container(
+                      width: double.infinity,
+                      height: 170,
+                      decoration: BoxDecoration(
+                        color: Color(0xFF315ED2),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 4.0),
+                            child: Text(
+                              'Also Available on Playstore',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 4.0),
+                            child: Text(
+                              'Enjoy the Best collection book here',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.normal,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 4.0),
+                            child: Text(
+                              'Download Now!',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          Image.asset(
+                            'assets/page-1/images/playstore.png',
+                            width: 150,
+                            // height: 120,
+                            fit: BoxFit.contain,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 18.0),
+                    child: Text(
+                      'Testimonials',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: Color(0xFF315ED2),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    // autogroupt4s7PjN (7VHoMxb1fFqqbEzPfhT4S7)
+                    margin:
+                        EdgeInsets.fromLTRB(0 * fem, 0 * fem, 0 * fem, 9 * fem),
+                    padding: EdgeInsets.fromLTRB(
+                        13 * fem, 15 * fem, 13 * fem, 12 * fem),
+                    width: double.infinity,
+                    height: 476,
+
+                    child: CarouselSlider(
+                      options: CarouselOptions(
+                          height: 476.0,
+                          enableInfiniteScroll: true,
+                          enlargeCenterPage: true,
+                          // autoPlayInterval: Duration(seconds: 2),
+                          autoPlayInterval: Duration(seconds: 6),
+                          autoPlayCurve: Curves.easeInOutQuart,
+                          autoPlayAnimationDuration:
+                              Duration(milliseconds: 1500),
+                          autoPlay: true),
+                      items: [
+                        "testimonial1.JPG",
+                      ].map((i) {
+                        return Builder(
+                          builder: (BuildContext context) {
+                            return Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Container(
+                                height: 476,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: Color(0xFF315ED2), width: 1.0),
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      width: MediaQuery.of(context).size.width *
+                                          .4,
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 8, horizontal: 8),
+                                      child: Image.asset(
+                                        'assets/page-1/images/$i',
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                .7,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                            vertical: 8, horizontal: 8),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "Mrs. Gulshan Roy Chowdhury",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                                color: Color(0xFF315ED2),
+                                              ),
+                                            ),
+                                            Text(
+                                              "Ph.D. Scholar, M.N.(OBG-RAKCON-DU)",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12,
+                                                color: Color(0xFF315ED2),
+                                              ),
+                                            ),
+                                            Text(
+                                              "Lecturer, College of Nursing ABVIMS & Dr. R.M.L. Hospital, New Delhi",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 10,
+                                                color: Color(0xFF315ED2),
+                                              ),
+                                            ),
+                                            SizedBox(height: 10),
+                                            Text(
+                                              "VERY SYSTEMATIC AND ORGANISED CONTENTS OF EACH CHAPTER IN A COMPREHENSIVE AND EASY LANGUAGE. EXAMPLES IN THE STATISTICS CHAPTER ARE VERY RELEVANT AND EFFECTIVELY MENTIONED.",
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.black,
+                                              ),
+                                              textAlign: TextAlign.justify,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    height: 200,
+                    color: Color(0xFF315ED2),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Become our retail partner',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 12),
+                        ElevatedButton(
+                          onPressed: () {
+                            print("mudit");
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.white,
+                            onPrimary: Color(0xFF315ED2),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 12, horizontal: 32),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text(
+                            'Join Now',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF315ED2),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
               ),
             );
           }

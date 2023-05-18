@@ -20,32 +20,8 @@ import 'package:myapp/page-1/bottomnavbar.dart';
 import 'package:myapp/page-1/home.dart';
 import 'package:myapp/page-1/login.dart';
 import 'package:myapp/utils.dart';
-// import 'package:myapp/page-1/cart.dart';
-// import 'package:myapp/page-1/profile-setting.dart';
-// import 'package:myapp/page-1/accont-setting.dart';
-// import 'package:myapp/page-1/billing-addrss-account-setting.dart';
-// import 'package:myapp/page-1/shipping-addrss-account-setting.dart';
-// import 'package:myapp/page-1/delivery-address.dart';
-// import 'package:myapp/page-1/payment-gateway.dart';
-// import 'package:myapp/page-1/order-placed.dart';
-// import 'package:myapp/page-1/wishlist.dart';
-// import 'package:myapp/page-1/orders.dart';
-// import 'package:myapp/page-1/home.dart';
-// import 'package:myapp/page-1/product-page.dart';
-// import 'package:myapp/page-1/downloads.dart';
-// import 'package:myapp/page-1/listen.dart';
-// import 'package:myapp/page-1/read.dart';
-// import 'package:myapp/page-1/profile.dart';
-// import 'package:myapp/page-1/logout.dart';
-// import 'package:myapp/page-1/order-detail.dart';
-// import 'package:myapp/page-1/user.dart';
 import 'package:myapp/page-1/splash-screen.dart';
 
-// import 'package:myapp/page-1/registration.dart';
-// import 'package:myapp/page-1/shipping-address.dart';
-// import 'package:myapp/page-1/billing-address.dart';
-// import 'package:myapp/page-1/login.dart';
-// import 'package:myapp/page-1/otp.dart';
 bool shouldUseFirebaseEmulator = false;
 
 late final FirebaseApp app;
@@ -135,3 +111,16 @@ class _homepageState extends State<homepage> {
     );
   }
 }
+
+
+// work to do in this app
+// 1. check working or cart and wishlist page
+// 2. change bookcomp code in cart and wishlist page
+// 3. add contact and about page
+// 4. add drawer in appbar
+// 5. make ui of product page
+// 6. make profile settings and account settings page working
+// 7. make orders page ui and make it working
+// 8. make books page where only ebooks will be shown
+// 9. make splash screen working
+// 10. add loading screen on each api call

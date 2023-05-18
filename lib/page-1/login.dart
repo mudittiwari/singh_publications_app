@@ -41,7 +41,36 @@ class _LoginState extends State<Login> {
     );
   }
 
+  showMessageDialog(BuildContext context, String message) {
+    AlertDialog alert = AlertDialog(
+      content: new Row(
+        children: [
+          Container(margin: EdgeInsets.only(left: 7), child: Text(message)),
+        ],
+      ),
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
   Login() async {
+    if (emailController.text.toString().trim().isEmpty) {
+      showMessageDialog(context, "Please enter email");
+      return;
+    }
+    if (passwordController.text.toString().trim().isEmpty) {
+      showMessageDialog(context, "Please enter password");
+      return;
+    }
+    if (mobileController.text.toString().trim().length != 10) {
+      showMessageDialog(context, "Please enter a valid mobile number");
+      return;
+    }
     showLoaderDialog(context);
     final uri =
         Uri.parse('https://singhpublications.onrender.com/api/user/login');
