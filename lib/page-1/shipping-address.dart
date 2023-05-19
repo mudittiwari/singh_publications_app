@@ -51,6 +51,23 @@ class _ShippingAddressState extends State<ShippingAddress> {
     );
   }
 
+  showMessageDialog(BuildContext context, String message) {
+    AlertDialog alert = AlertDialog(
+      content: new Row(
+        children: [
+          Container(margin: EdgeInsets.only(left: 7), child: Text(message)),
+        ],
+      ),
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
   getuser() async {
     String user = await getStringFromPrefs();
     setState(() {
@@ -96,16 +113,19 @@ class _ShippingAddressState extends State<ShippingAddress> {
     String responseBody = response.body;
     print(responseBody);
     if (statusCode == 200) {
-      Navigator.pop(context);
       var data = json.decode(responseBody);
       // print(data['wishlist']);
       data['accessToken'] = json.decode(user!)['accessToken'];
       var finaldata = json.encode(data);
       print(finaldata);
       final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('pubuser', finaldata).then((value) {});
+      await prefs.setString('pubuser', finaldata).then((value) {
+        Navigator.pop(context);
+        showMessageDialog(context, "Shipping Address Updated");
+      });
     } else {
       Navigator.pop(context);
+      showMessageDialog(context, "Something went wrong");
       // print("not removed");
     }
   }

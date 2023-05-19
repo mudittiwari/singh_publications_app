@@ -150,9 +150,11 @@ class _ProductState extends State<Product> {
       print("error");
       showmessage(context, "error");
     } else {
-      print("success");
+      var data = json.decode(responseBody);
+      data['accessToken'] = json.decode(user!)['accessToken'];
+      var finaldata = json.encode(data);
       final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('pubuser', responseBody).then((value) {
+      await prefs.setString('pubuser', finaldata).then((value) async {
         showmessage(context, "Product added to wishlist");
       });
     }
@@ -215,369 +217,320 @@ class _ProductState extends State<Product> {
         ],
       )),
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              height: 300,
-              width: MediaQuery.of(context).size.width,
-              child: Center(
-                child: Image(
-                  image: AssetImage('assets/page-1/images/image-1.png'),
-                  fit: BoxFit.fitHeight,
+          child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              border: Border(
+                right: BorderSide(
+                  color: Color(0xFF777777),
+                  width: 1.0,
                 ),
               ),
             ),
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 18.0, vertical: 0),
-              child: Text(
-                json.decode(widget.product)['title'],
-                style: SafeGoogleFont(
-                  'Inter',
-                  fontSize: 24.2172622681 * ffem,
-                  fontWeight: FontWeight.w700,
-                  height: 1.2125 * ffem / fem,
-                  color: Color(0xff315ed2),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 300,
+                  width: MediaQuery.of(context).size.width,
+                  child: Image.network(
+                    json.decode(widget.product)['image_url'],
+                    fit: BoxFit.fill,
+                  ),
                 ),
-              ),
-            ),
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 18.0, vertical: 0),
-              child: Text(
-                json.decode(widget.product)['category'],
-                style: SafeGoogleFont(
-                  'Inter',
-                  fontSize: 17.2593173981 * ffem,
-                  fontWeight: FontWeight.w700,
-                  height: 1.2125 * ffem / fem,
-                  color: Color(0xff777777),
+                Padding(
+                  padding: const EdgeInsets.only(top: 18.0),
+                  child: Text(
+                    json.decode(widget.product)['title'],
+                    style: TextStyle(
+                      color: Color(0xFF315ED2),
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 18.0, vertical: 0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    json.decode(widget.product)['subtitle'],
-                    style: SafeGoogleFont(
-                      'Inter',
-                      fontSize: 17.2600002289 * ffem,
-                      fontWeight: FontWeight.w400,
-                      height: 1.2125 * ffem / fem,
-                      color: Color(0xff777777),
-                    ),
+                Text(
+                  json.decode(widget.product)['category'],
+                  style: TextStyle(
+                    color: Color(0xFF777777),
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.bold,
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      addtowishlist();
-                    },
-                    child: Container(
-                        height: 40,
-                        width: 40,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Color(0xffD1D1D1)),
-                          borderRadius: BorderRadius.circular(20),
-                          color: Colors.transparent,
-                        ),
-                        child: Icon(Icons.save, color: Color(0xffD1D1D1))),
-                  )
-                ],
-              ),
-            ),
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 18.0, vertical: 0),
-              child: Row(
-                children: [
-                  Text(
-                    json.decode(widget.product)['rating'].toString(),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Icon(
-                      Icons.star,
-                      color: Color(0xffFFC107),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Icon(
-                      Icons.star,
-                      color: Color(0xffFFC107),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Icon(
-                      Icons.star,
-                      color: Color(0xffFFC107),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Icon(
-                      Icons.star,
-                      color: Color(0xffFFC107),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Icon(
-                      Icons.star,
-                      color: Color(0xffFFC107),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Icon(
-                      Icons.star,
-                      color: Color(0xffFFC107),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 0.0, vertical: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      addtocart();
-                    },
-                    child: Container(
-                      height: 40,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(18),
-                          color: Color(0xff315ED2)),
-                      width: 150,
-                      child: Center(
-                        child: Text(
-                          "Add to Cart",
-                          style: SafeGoogleFont(
-                            'Inter',
-                            fontSize: 21.5526294708 * ffem,
-                            fontWeight: FontWeight.w500,
-                            height: 1.2125 * ffem / fem,
-                            color: Color(0xffffffff),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => Cart()));
-                    },
-                    child: Container(
-                      height: 40,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(18),
-                          color: Color(0xff315ED2)),
-                      width: 120,
-                      child: Center(
-                        child: Text(
-                          "Buy Now",
-                          style: SafeGoogleFont(
-                            'Inter',
-                            fontSize: 21.5526294708 * ffem,
-                            fontWeight: FontWeight.w500,
-                            height: 1.2125 * ffem / fem,
-                            color: Color(0xffffffff),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 18.0, top: 10),
-              child: Text(
-                "Book Description",
-                style: SafeGoogleFont(
-                  'Inter',
-                  fontSize: 22.2172622681 * ffem,
-                  fontWeight: FontWeight.w700,
-                  height: 1.2125 * ffem / fem,
-                  color: Color(0xff315ed2),
                 ),
-              ),
-            ),
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 18.0, vertical: 8),
-              child: Text(
-                json.decode(widget.product)['description'],
-                style: SafeGoogleFont(
-                  'Inter',
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 18.0, top: 10),
-              child: Text(
-                "Book Description",
-                style: SafeGoogleFont(
-                  'Inter',
-                  fontSize: 22.2172622681 * ffem,
-                  fontWeight: FontWeight.w700,
-                  height: 1.2125 * ffem / fem,
-                  color: Color(0xff315ed2),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 18.0, top: 10),
-              child: RichText(
-                text: TextSpan(
-                  style: SafeGoogleFont(
-                    'Inter',
-                    fontSize: 17.2593173981 * ffem,
-                    fontWeight: FontWeight.w400,
-                    height: 1.2125 * ffem / fem,
-                    color: Color(0xff000000),
+                Text(
+                  json.decode(widget.product)['subtitle'],
+                  style: TextStyle(
+                    color: Color(0xFF777777),
+                    fontSize: 12.0,
+                    fontWeight: FontWeight.normal,
                   ),
+                ),
+                Row(
                   children: [
-                    TextSpan(
-                      text: 'Author:',
-                      style: SafeGoogleFont(
-                        'Inter',
-                        fontSize: 17.2593173981 * ffem,
-                        fontWeight: FontWeight.w600,
-                        height: 1.2125 * ffem / fem,
-                        color: Color(0xff000000),
+                    Text(
+                      json.decode(widget.product)['rating'].toString(),
+                      style: TextStyle(
+                        color: Color(0xFF777777),
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
-                    TextSpan(
-                      text: " " + json.decode(widget.product)['author'] + '\n',
+                    Image.asset(
+                      'assets/page-1/images/star.png',
+                      width: 16.0,
                     ),
-                    TextSpan(
-                      text: 'Publisher:',
-                      style: SafeGoogleFont(
-                        'Inter',
-                        fontSize: 17.2593173981 * ffem,
-                        fontWeight: FontWeight.w600,
-                        height: 1.2125 * ffem / fem,
-                        color: Color(0xff000000),
-                      ),
+                    Image.asset(
+                      'assets/page-1/images/star.png',
+                      width: 16.0,
                     ),
-                    TextSpan(
-                      text:
-                          " " + json.decode(widget.product)['publisher'] + '\n',
+                    Image.asset(
+                      'assets/page-1/images/star.png',
+                      width: 16.0,
                     ),
-                    TextSpan(
-                      text: 'Language‏:',
-                      style: SafeGoogleFont(
-                        'Inter',
-                        fontSize: 17.2593173981 * ffem,
-                        fontWeight: FontWeight.w600,
-                        height: 1.2125 * ffem / fem,
-                        color: Color(0xff000000),
-                      ),
+                    Image.asset(
+                      'assets/page-1/images/star.png',
+                      width: 16.0,
                     ),
-                    TextSpan(
-                      text:
-                          " " + json.decode(widget.product)['language'] + '\n',
-                    ),
-                    TextSpan(
-                      text: 'Paperback:',
-                      style: SafeGoogleFont(
-                        'Inter',
-                        fontSize: 17.2593173981 * ffem,
-                        fontWeight: FontWeight.w600,
-                        height: 1.2125 * ffem / fem,
-                        color: Color(0xff000000),
-                      ),
-                    ),
-                    TextSpan(
-                      text: " " +
-                          json.decode(widget.product)['paperback'].toString() +
-                          '\n',
-                    ),
-                    TextSpan(
-                      text: 'ISBN-10:',
-                      style: SafeGoogleFont(
-                        'Inter',
-                        fontSize: 17.2593173981 * ffem,
-                        fontWeight: FontWeight.w600,
-                        height: 1.2125 * ffem / fem,
-                        color: Color(0xff000000),
-                      ),
-                    ),
-                    TextSpan(
-                      text: " " + json.decode(widget.product)['isbn'] + '\n',
-                    ),
-                    TextSpan(
-                      text: 'ISBN-13:',
-                      style: SafeGoogleFont(
-                        'Inter',
-                        fontSize: 17.2593173981 * ffem,
-                        fontWeight: FontWeight.w600,
-                        height: 1.2125 * ffem / fem,
-                        color: Color(0xff000000),
-                      ),
-                    ),
-                    TextSpan(
-                      text: " " + json.decode(widget.product)['isbn13'] + '\n',
-                    ),
-                    TextSpan(
-                      text: 'Reading age:',
-                      style: SafeGoogleFont(
-                        'Inter',
-                        fontSize: 17.2593173981 * ffem,
-                        fontWeight: FontWeight.w600,
-                        height: 1.2125 * ffem / fem,
-                        color: Color(0xff000000),
-                      ),
-                    ),
-                    TextSpan(
-                      text: " " + json.decode(widget.product)['age'] + '\n',
-                    ),
-                    TextSpan(
-                      text: 'Item Weight:',
-                      style: SafeGoogleFont(
-                        'Inter',
-                        fontSize: 17.2593173981 * ffem,
-                        fontWeight: FontWeight.w600,
-                        height: 1.2125 * ffem / fem,
-                        color: Color(0xff000000),
-                      ),
-                    ),
-                    TextSpan(
-                      text: " " + json.decode(widget.product)['weight'] + '\n',
-                    ),
-                    TextSpan(
-                      text: 'Dimensions:',
-                      style: SafeGoogleFont(
-                        'Inter',
-                        fontSize: 17.2593173981 * ffem,
-                        fontWeight: FontWeight.w600,
-                        height: 1.2125 * ffem / fem,
-                        color: Color(0xff000000),
-                      ),
-                    ),
-                    TextSpan(
-                      text: " " +
-                          json.decode(widget.product)['dimensions'] +
-                          '\n',
+                    Image.asset(
+                      'assets/page-1/images/star.png',
+                      width: 16.0,
                     ),
                   ],
                 ),
-              ),
+                user == ''
+                    ? SizedBox()
+                    : Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                addtocart();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                primary: Color(0xFF315ED2),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20.0),
+                                ),
+                              ),
+                              child: Text(
+                                "Add to Cart",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                addtowishlist();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                primary: Color(0xFF315ED2),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20.0),
+                                ),
+                              ),
+                              child: Text(
+                                "Add to Wishlist",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Book Description",
+                  style: TextStyle(
+                    color: Color(0xFF315ED2),
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 5.0),
+                Text(
+                  json.decode(widget.product)['description'],
+                  style: TextStyle(
+                    fontSize: 14.0,
+                  ),
+                ),
+                SizedBox(height: 10.0),
+                Text(
+                  "Book Details",
+                  style: TextStyle(
+                    color: Color(0xFF315ED2),
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 5.0),
+                Row(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Author:",
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        Text(
+                          "Publisher:",
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        Text(
+                          "Language:",
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        Text(
+                          "Paperback:",
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        Text(
+                          "ISBN:",
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        Text(
+                          "ISBN13:",
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        Text(
+                          "Age Limit:",
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        Text(
+                          "Dimensions:",
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        Text(
+                          "Weight:",
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          json.decode(widget.product)['author'],
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                        Text(
+                          json.decode(widget.product)['publisher'],
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                        Text(
+                          json.decode(widget.product)['language'],
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                        Text(
+                          json.decode(widget.product)['paperback'].toString(),
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                        Text(
+                          json.decode(widget.product)['isbn'],
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                        Text(
+                          json.decode(widget.product)['isbn13'],
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                        Text(
+                          json.decode(widget.product)['age'],
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                        Text(
+                          " " + json.decode(widget.product)['dimensions'],
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                        Text(
+                          json.decode(widget.product)['weight'],
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10.0),
+                Text(
+                  "Customer Reviews",
+                  style: TextStyle(
+                    color: Color(0xFF315ED2),
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      )),
       bottomNavigationBar: bottomnavbar(
         active: 'home',
       ),

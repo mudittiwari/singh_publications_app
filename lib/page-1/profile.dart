@@ -12,6 +12,7 @@ import 'package:myapp/page-1/login.dart';
 import 'package:myapp/page-1/orders.dart';
 import 'package:myapp/page-1/profile-setting.dart';
 import 'package:myapp/utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -168,7 +169,10 @@ class _ProfileState extends State<Profile> {
                       ),
                       GestureDetector(
                         onTap: () {
-                          auth.signOut().then((value) {
+                          auth.signOut().then((value) async {
+                            final SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
+                            prefs.remove('pubuser');
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(builder: (context) => Login()),

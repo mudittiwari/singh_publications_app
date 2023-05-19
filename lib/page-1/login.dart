@@ -63,14 +63,20 @@ class _LoginState extends State<Login> {
       showMessageDialog(context, "Please enter email");
       return;
     }
-    if (passwordController.text.toString().trim().isEmpty) {
-      showMessageDialog(context, "Please enter password");
+    if (!emailController.text.contains('@') ||
+        !emailController.text.contains('.')) {
+      showMessageDialog(context, "Please enter a valid email");
       return;
     }
     if (mobileController.text.toString().trim().length != 10) {
       showMessageDialog(context, "Please enter a valid mobile number");
       return;
     }
+    if (passwordController.text.toString().trim().isEmpty) {
+      showMessageDialog(context, "Please enter password");
+      return;
+    }
+
     showLoaderDialog(context);
     final uri =
         Uri.parse('https://singhpublications.onrender.com/api/user/login');
@@ -137,40 +143,30 @@ class _LoginState extends State<Login> {
               child: Center(
                 // image176GKz (1:820)
                 child: SizedBox(
-                  width: 100 * fem,
-                  height: 100 * fem,
+                  width: 400 * fem,
+                  // height: 100 * fem,
                   child: Image.asset(
                     'assets/page-1/images/logo.png',
-                    fit: BoxFit.cover,
+                    fit: BoxFit.fill,
                   ),
                 ),
               ),
             ),
-            Container(
-              // singhpublicationQBJ (1:818)
-              margin: EdgeInsets.fromLTRB(0 * fem, 0 * fem, 1 * fem, 78 * fem),
-              child: Text(
-                'Singh Publication',
-                style: SafeGoogleFont(
-                  'Inter',
-                  fontSize: 31.6666660309 * ffem,
-                  fontWeight: FontWeight.w800,
-                  height: 1.2125 * ffem / fem,
-                  color: Color(0xff315ed2),
-                ),
-              ),
-            ),
-            Container(
-              // createanaccounthgC (1:825)
-              margin: EdgeInsets.fromLTRB(0 * fem, 0 * fem, 1 * fem, 35 * fem),
-              child: Text(
-                'Create an account',
-                style: SafeGoogleFont(
-                  'Inter',
-                  fontSize: 20.1037635803 * ffem,
-                  fontWeight: FontWeight.w400,
-                  height: 1.2125 * ffem / fem,
-                  color: Color(0xff777777),
+            Padding(
+              padding: const EdgeInsets.only(top: 38.0),
+              child: Container(
+                // createanaccounthgC (1:825)
+                margin:
+                    EdgeInsets.fromLTRB(0 * fem, 0 * fem, 1 * fem, 35 * fem),
+                child: Text(
+                  'Create an account',
+                  style: SafeGoogleFont(
+                    'Inter',
+                    fontSize: 20.1037635803 * ffem,
+                    fontWeight: FontWeight.w400,
+                    height: 1.2125 * ffem / fem,
+                    color: Color(0xff777777),
+                  ),
                 ),
               ),
             ),

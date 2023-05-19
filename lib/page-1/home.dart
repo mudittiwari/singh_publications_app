@@ -15,6 +15,7 @@ import 'package:myapp/page-1/About.dart';
 import 'package:myapp/page-1/Contact.dart';
 import 'package:myapp/page-1/bottomnavbar.dart';
 import 'package:myapp/page-1/cart.dart';
+import 'package:myapp/page-1/login.dart';
 import 'package:myapp/page-1/product-page.dart';
 import 'package:myapp/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -122,7 +123,13 @@ class BookComp extends StatelessWidget {
             children: [
               GestureDetector(
                 onTap: () {
-                  Navigator.pushNamed(context, '/product', arguments: prod);
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) {
+                      return Product(
+                        product: prod,
+                      );
+                    },
+                  ));
                 },
                 child: Image.network(
                   json.decode(prod)['image_url'],
@@ -277,6 +284,23 @@ class _HomeState extends State<Home> {
     // return user;
   }
 
+  showmessage(BuildContext context, String message) {
+    AlertDialog alert = AlertDialog(
+      content: new Row(
+        children: [
+          Container(margin: EdgeInsets.only(left: 7), child: Text(message)),
+        ],
+      ),
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -371,21 +395,44 @@ class _HomeState extends State<Home> {
                       ].map((i) {
                         return Builder(
                           builder: (BuildContext context) {
-                            return Container(
-                                width: MediaQuery.of(context).size.width,
-                                margin: EdgeInsets.symmetric(horizontal: 0.0),
-                                decoration: BoxDecoration(
+                            return GestureDetector(
+                              onTap: () {
+                                if (i == "homepagebg.png" ||
+                                    i == "homepagebg2.png") {
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) {
+                                    return Product(
+                                        product: json.encode(products[0]));
+                                  }));
+                                } else if (i == "homepagebg3.png" &&
+                                    user == "") {
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) {
+                                    return Login();
+                                  }));
+                                } else if (i == "homepagebg3.png" &&
+                                    user != '') {
+                                  showmessage(
+                                      context, "You are already logged in");
+                                }
+                              },
+                              child: Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  margin: EdgeInsets.symmetric(horizontal: 0.0),
+                                  decoration: BoxDecoration(
 
-                                    // color: Colors.pink,
-                                    borderRadius: BorderRadius.circular(12.0)),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(0),
-                                  child: Image(
-                                    image:
-                                        AssetImage("assets/page-1/images/$i"),
-                                    fit: BoxFit.fill,
-                                  ),
-                                ));
+                                      // color: Colors.pink,
+                                      borderRadius:
+                                          BorderRadius.circular(12.0)),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(0),
+                                    child: Image(
+                                      image:
+                                          AssetImage("assets/page-1/images/$i"),
+                                      fit: BoxFit.fill,
+                                    ),
+                                  )),
+                            );
                           },
                         );
                       }).toList(),
@@ -670,7 +717,12 @@ class _HomeState extends State<Home> {
                         SizedBox(height: 12),
                         ElevatedButton(
                           onPressed: () {
-                            print("mudit");
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Contact(),
+                              ),
+                            );
                           },
                           style: ElevatedButton.styleFrom(
                             primary: Colors.white,
@@ -699,9 +751,11 @@ class _HomeState extends State<Home> {
           }
         },
       ),
-      bottomNavigationBar: bottomnavbar(
-        active: 'home',
-      ),
+      bottomNavigationBar: user != ''
+          ? bottomnavbar(
+              active: 'home',
+            )
+          : Text(""),
     );
   }
 }

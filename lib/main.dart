@@ -69,12 +69,8 @@ class _homepageState extends State<homepage> {
   void mainfunction() {
     // print(auth.currentUser);
     // auth.signOut();
-    if (auth.currentUser == null)
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => Login()));
-    else
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => Home()));
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => Home()));
   }
 
   @override
@@ -110,13 +106,8 @@ class _homepageState extends State<homepage> {
 
 
 // work to do in this app
-// 5. make ui of product page
-// 6. make profile settings and account settings page working
-// 7. make orders page ui and make it working
 // 8. make books page where only ebooks will be shown
 // 10. add loading screen on each api call
-// send on contact page on click join now
-// send on login page on click on third image
 // check signup page
 // add form validation on login and signup page
 // add automatically shift to next field in otp page

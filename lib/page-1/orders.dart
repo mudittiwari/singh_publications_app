@@ -1,12 +1,187 @@
+// ignore_for_file: prefer_const_constructors, unnecessary_new
+
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'dart:ui';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart';
 import 'package:myapp/page-1/About.dart';
 import 'package:myapp/page-1/Contact.dart';
 import 'package:myapp/page-1/bottomnavbar.dart';
 import 'package:myapp/page-1/home.dart';
+import 'package:myapp/page-1/order-detail.dart';
 import 'package:myapp/utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class BookComp extends StatelessWidget {
+  dynamic order;
+
+  BookComp({required this.order});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.all(8.0),
+      height: 200.0,
+      width: MediaQuery.of(context).size.width * .8,
+      decoration: BoxDecoration(
+        border: Border.all(color: Color(0xFF315ED2), width: 1.0),
+        borderRadius: BorderRadius.circular(16.0),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(left: 8.0, top: 8),
+        child: Row(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                  // shrinkWrap: true,
+                  // physics: NeverScrollableScrollPhysics(),
+                  itemCount: order['items'].length,
+                  itemBuilder: (context, index) {
+                    var item = order['items'][index];
+                    return Container(
+                      margin: EdgeInsets.symmetric(vertical: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Image.network(
+                            item['image_url'],
+                            height: 160,
+                          ),
+                          SizedBox(width: 8.0),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item['title'],
+                                  style: TextStyle(
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF315ED2),
+                                  ),
+                                ),
+                                Text(
+                                  item['subtitle'],
+                                  style: TextStyle(
+                                    fontSize: 14.0,
+                                    fontWeight: FontWeight.normal,
+                                    color: Color(0xFF777777),
+                                  ),
+                                ),
+                                Row(
+                                  children: [
+                                    Text(
+                                      item['rating'].toString(),
+                                      style: TextStyle(
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.normal,
+                                        color: Color(0xFF777777),
+                                      ),
+                                    ),
+                                    SizedBox(width: 4.0),
+                                    Image.asset(
+                                      'assets/page-1/images/star.png',
+                                      width: 16.0,
+                                      height: 16.0,
+                                    ),
+                                    Image.asset(
+                                      'assets/page-1/images/star.png',
+                                      width: 16.0,
+                                      height: 16.0,
+                                    ),
+                                    Image.asset(
+                                      'assets/page-1/images/star.png',
+                                      width: 16.0,
+                                      height: 16.0,
+                                    ),
+                                    Image.asset(
+                                      'assets/page-1/images/star.png',
+                                      width: 16.0,
+                                      height: 16.0,
+                                    ),
+                                    Image.asset(
+                                      'assets/page-1/images/star.png',
+                                      width: 16.0,
+                                      height: 16.0,
+                                    ),
+                                  ],
+                                ),
+                                Text(
+                                  '11 Jan 2023',
+                                  style: TextStyle(
+                                    fontSize: 14.0,
+                                    fontWeight: FontWeight.normal,
+                                    color: Color(0xFF777777),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0),
+              child: VerticalDivider(
+                width: 1,
+                color: Color(0xFF315ED2),
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    '${order["price"]} Rs.',
+                    style: TextStyle(
+                      fontSize: 24.0,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF315ED2),
+                    ),
+                  ),
+                  SizedBox(height: 20.0),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                Orderdetails(order: json.encode(order))),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: Color(0xFF315ED2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                      ),
+                    ),
+                    child: Text(
+                      'Details',
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class Orders extends StatefulWidget {
   const Orders({super.key});
@@ -16,6 +191,142 @@ class Orders extends StatefulWidget {
 }
 
 class _OrdersState extends State<Orders> {
+  String? user;
+  dynamic orders;
+  Future<String> getStringFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('pubuser') ?? '';
+  }
+
+  showLoaderDialog(BuildContext context) {
+    AlertDialog alert = AlertDialog(
+      content: new Row(
+        children: [
+          CircularProgressIndicator(),
+          Container(
+              margin: EdgeInsets.only(left: 7), child: Text("Loading...")),
+        ],
+      ),
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  showmessage(BuildContext context, String message) {
+    AlertDialog alert = AlertDialog(
+      content: new Row(
+        children: [
+          Container(margin: EdgeInsets.only(left: 7), child: Text(message)),
+        ],
+      ),
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  getorders() async {
+    var orders = [];
+    var price;
+    showLoaderDialog(context);
+    final uri = Uri.parse(
+        'https://singhpublications.onrender.com/api/order/getuserorders?id=${json.decode(user!)['id']}');
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${json.decode(user!)['accessToken']}'
+    };
+    Map<String, dynamic> body = {
+      // 'email': emailController.text.trim(),
+      // 'password': passwordController.text.trim()
+    };
+    String jsonBody = json.encode(body);
+    final encoding = Encoding.getByName('utf-8');
+    Response response = await get(
+      uri,
+      headers: headers,
+      // body: jsonBody,
+      // encoding: encoding,
+    );
+    int statusCode = response.statusCode;
+    String responseBody_ = response.body;
+    print(responseBody_);
+    if (statusCode != 200) {
+      Navigator.pop(context);
+      showmessage(context, "Something went wrong");
+    } else {
+      for (int i = 0; i < json.decode(responseBody_).length; i++) {
+        var arr = [];
+        for (int j = 0;
+            j < json.decode(responseBody_)[i]['ProductsArray'].length;
+            j++) {
+          final uri = Uri.parse(
+              'https://singhpublications.onrender.com/api/product/products?id=${json.decode(responseBody_)[i]['ProductsArray'][j]}');
+          final headers = {
+            'Content-Type': 'application/json',
+          };
+          Map<String, dynamic> body = {
+            // 'email': emailController.text.trim(),
+            // 'password': passwordController.text.trim()
+          };
+          String jsonBody = json.encode(body);
+          final encoding = Encoding.getByName('utf-8');
+          Response response = await get(
+            uri,
+            headers: headers,
+            // body: jsonBody,
+            // encoding: encoding,
+          );
+          int statusCode = response.statusCode;
+          String responseBody = response.body;
+          if (statusCode == 200) {
+            arr.add(json.decode(responseBody));
+          } else {
+            showmessage(context, "Something went wrong");
+            print("error in getting product");
+            return;
+          }
+        }
+
+        orders.add({
+          'items': arr,
+          'price': json.decode(responseBody_)[i]['totalAmount'],
+          'status': json.decode(responseBody_)[i]['delivery_status']
+        });
+      }
+      // print(orders);
+      setState(() {
+        this.orders = orders;
+      });
+      Navigator.pop(context);
+      // print(json.decode(responseBody)['data']);
+    }
+  }
+
+  getuser() async {
+    String user = await getStringFromPrefs();
+    print(user);
+    setState(() {
+      this.user = user;
+    });
+    getorders();
+    // return user;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getuser();
+  }
+
   double baseWidth = 393;
 
   @override
@@ -24,978 +335,48 @@ class _OrdersState extends State<Orders> {
     double ffem = fem * 0.97;
     return Scaffold(
       body: SingleChildScrollView(
-        child: Container(
-          width: double.infinity,
-          child: Container(
-            // orders8CG (1:303)
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Color(0xffffffff),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  // orderszXJ (1:407)
-                  margin:
-                      EdgeInsets.fromLTRB(10 * fem, 28 * fem, 0 * fem, 0 * fem),
-                  child: Text(
-                    'Orders',
-                    style: SafeGoogleFont(
-                      'Inter',
-                      fontSize: 26.8050193787 * ffem,
-                      fontWeight: FontWeight.w700,
-                      height: 1.2125 * ffem / fem,
-                      color: Color(0xff315ed2),
-                    ),
-                  ),
-                ),
-                Container(
-                  // autogroupqvx5iCQ (7VHeW8Wr4QZcNNZBc4QvX5)
-                  padding: EdgeInsets.fromLTRB(
-                      10 * fem, 9 * fem, 11 * fem, 28 * fem),
-                  width: double.infinity,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        // group12qH2 (1:329)
-                        width: double.infinity,
-                        height: 130 * fem,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Color(0xff315ed2)),
-                          borderRadius: BorderRadius.circular(20 * fem),
-                        ),
-                        child: Stack(
-                          children: [
-                            Positioned(
-                              // group11kPz (1:331)
-                              left: 99 * fem,
-                              top: 16 * fem,
-                              child: Container(
-                                width: 156 * fem,
-                                height: 59.72 * fem,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      // thinkoutsidetheboxfmr (1:332)
-                                      margin: EdgeInsets.fromLTRB(0 * fem,
-                                          0 * fem, 0 * fem, 2.86 * fem),
-                                      child: Text(
-                                        'Think Outside The Box',
-                                        style: SafeGoogleFont(
-                                          'Inter',
-                                          fontSize: 14.0545444489 * ffem,
-                                          fontWeight: FontWeight.w700,
-                                          height: 1.2125 * ffem / fem,
-                                          color: Color(0xff315ed2),
-                                        ),
-                                      ),
-                                    ),
-                                    Container(
-                                      // artlifegoalsNgG (1:333)
-                                      margin: EdgeInsets.fromLTRB(0 * fem,
-                                          0 * fem, 0 * fem, 2.86 * fem),
-                                      child: Text(
-                                        'Art | Life | Goals',
-                                        style: SafeGoogleFont(
-                                          'Inter',
-                                          fontSize: 14.0545444489 * ffem,
-                                          fontWeight: FontWeight.w400,
-                                          height: 1.2125 * ffem / fem,
-                                          color: Color(0xff777777),
-                                        ),
-                                      ),
-                                    ),
-                                    Container(
-                                      // autogrouprqh9tPi (7VHgeQH7T4U7cLuxysrQH9)
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Container(
-                                            // ReY (1:334)
-                                            margin: EdgeInsets.fromLTRB(0 * fem,
-                                                0 * fem, 2.86 * fem, 0 * fem),
-                                            child: Text(
-                                              '4.1',
-                                              style: SafeGoogleFont(
-                                                'Inter',
-                                                fontSize: 14.0545444489 * ffem,
-                                                fontWeight: FontWeight.w400,
-                                                height: 1.2125 * ffem / fem,
-                                                color: Color(0xff777777),
-                                              ),
-                                            ),
-                                          ),
-                                          Container(
-                                            // vectorYUG (1:335)
-                                            margin: EdgeInsets.fromLTRB(
-                                                0 * fem,
-                                                0 * fem,
-                                                5.65 * fem,
-                                                1.31 * fem),
-                                            width: 13.82 * fem,
-                                            height: 13.91 * fem,
-                                            child: Image.asset(
-                                              'assets/page-1/images/vector-TNp.png',
-                                              width: 13.82 * fem,
-                                              height: 13.91 * fem,
-                                            ),
-                                          ),
-                                          Container(
-                                            // vectorG9N (1:336)
-                                            margin: EdgeInsets.fromLTRB(
-                                                0 * fem,
-                                                0 * fem,
-                                                5.65 * fem,
-                                                1.31 * fem),
-                                            width: 13.82 * fem,
-                                            height: 13.91 * fem,
-                                            child: Image.asset(
-                                              'assets/page-1/images/vector-y2g.png',
-                                              width: 13.82 * fem,
-                                              height: 13.91 * fem,
-                                            ),
-                                          ),
-                                          Container(
-                                            // vectorC32 (1:337)
-                                            margin: EdgeInsets.fromLTRB(
-                                                0 * fem,
-                                                0 * fem,
-                                                5.65 * fem,
-                                                1.31 * fem),
-                                            width: 13.82 * fem,
-                                            height: 13.91 * fem,
-                                            child: Image.asset(
-                                              'assets/page-1/images/vector-Tkc.png',
-                                              width: 13.82 * fem,
-                                              height: 13.91 * fem,
-                                            ),
-                                          ),
-                                          Container(
-                                            // vectorin4 (1:338)
-                                            margin: EdgeInsets.fromLTRB(0 * fem,
-                                                0 * fem, 0 * fem, 1.31 * fem),
-                                            width: 13.82 * fem,
-                                            height: 13.91 * fem,
-                                            child: Image.asset(
-                                              'assets/page-1/images/vector-krc.png',
-                                              width: 13.82 * fem,
-                                              height: 13.91 * fem,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              // image2evc (1:339)
-                              left: 15 * fem,
-                              top: 14 * fem,
-                              child: Align(
-                                child: SizedBox(
-                                  width: 72 * fem,
-                                  height: 102.19 * fem,
-                                  child: Image.asset(
-                                    'assets/page-1/images/image-2-Bw6.png',
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              // group134De (1:341)
-                              left: 0 * fem,
-                              top: 0 * fem,
-                              child: Container(
-                                padding: EdgeInsets.fromLTRB(
-                                    15 * fem, 14 * fem, 17 * fem, 13.81 * fem),
-                                width: 372 * fem,
-                                height: 130 * fem,
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Color(0xff315ed2)),
-                                  borderRadius: BorderRadius.circular(20 * fem),
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      // image2sRz (1:343)
-                                      margin: EdgeInsets.fromLTRB(
-                                          0 * fem, 0 * fem, 12 * fem, 0 * fem),
-                                      width: 72 * fem,
-                                      height: 102.19 * fem,
-                                      child: Image.asset(
-                                        'assets/page-1/images/image-2-CXa.png',
-                                      ),
-                                    ),
-                                    Container(
-                                      // autogroupywabarC (7VHh5ZDs9eGGo2PVnCYwAb)
-                                      margin: EdgeInsets.fromLTRB(0 * fem,
-                                          63.81 * fem, 47 * fem, 0 * fem),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Container(
-                                            // jan2023uda (1:352)
-                                            margin: EdgeInsets.fromLTRB(0 * fem,
-                                                0 * fem, 0 * fem, 2 * fem),
-                                            child: Text(
-                                              '13 Jan 2023',
-                                              style: SafeGoogleFont(
-                                                'Inter',
-                                                fontSize: 14.0500001907 * ffem,
-                                                fontWeight: FontWeight.w400,
-                                                height: 1.2125 * ffem / fem,
-                                                color: Color(0xff777777),
-                                              ),
-                                            ),
-                                          ),
-                                          Text(
-                                            // statusonthewayJvc (1:351)
-                                            'Status: On the way',
-                                            style: SafeGoogleFont(
-                                              'Inter',
-                                              fontSize: 14.0500001907 * ffem,
-                                              fontWeight: FontWeight.w400,
-                                              height: 1.2125 * ffem / fem,
-                                              color: Color(0xff315ed2),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Container(
-                                      // line1F5A (1:344)
-                                      margin: EdgeInsets.fromLTRB(0 * fem,
-                                          0 * fem, 16.79 * fem, 3.19 * fem),
-                                      width: 1.21 * fem,
-                                      height: 97.01 * fem,
-                                      decoration: BoxDecoration(
-                                        color: Color(0xff315ed2),
-                                      ),
-                                    ),
-                                    Container(
-                                      // autogroupprytM8C (7VHhD41NgwdiCBTrsAprYT)
-                                      margin: EdgeInsets.fromLTRB(
-                                          0 * fem, 20 * fem, 0 * fem, 20 * fem),
-                                      width: 65 * fem,
-                                      height: double.infinity,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Container(
-                                            // group15feg (1:348)
-                                            margin: EdgeInsets.fromLTRB(5 * fem,
-                                                0 * fem, 5.09 * fem, 17 * fem),
-                                            width: double.infinity,
-                                            child: Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                Container(
-                                                  // oF6 (1:349)
-                                                  margin: EdgeInsets.fromLTRB(
-                                                      0 * fem,
-                                                      0 * fem,
-                                                      3 * fem,
-                                                      0 * fem),
-                                                  child: Text(
-                                                    '599',
-                                                    style: SafeGoogleFont(
-                                                      'Inter',
-                                                      fontSize:
-                                                          20.432472229 * ffem,
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                      height:
-                                                          1.2125 * ffem / fem,
-                                                      color: Color(0xff315ed2),
-                                                    ),
-                                                  ),
-                                                ),
-                                                Container(
-                                                  // vectorXB6 (1:350)
-                                                  width: 10.91 * fem,
-                                                  height: 15 * fem,
-                                                  child: Image.asset(
-                                                    'assets/page-1/images/vector-fNp.png',
-                                                    width: 10.91 * fem,
-                                                    height: 15 * fem,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Container(
-                                            // group14fYC (1:345)
-                                            width: double.infinity,
-                                            height: 20 * fem,
-                                            decoration: BoxDecoration(
-                                              color: Color(0xff315ed2),
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                      20 * fem),
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                'Invoice',
-                                                style: SafeGoogleFont(
-                                                  'Inter',
-                                                  fontSize: 12 * ffem,
-                                                  fontWeight: FontWeight.w400,
-                                                  height: 1.2125 * ffem / fem,
-                                                  color: Color(0xffffffff),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10 * fem,
-                      ),
-                      Container(
-                        // group12qH2 (1:329)
-                        width: double.infinity,
-                        height: 130 * fem,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Color(0xff315ed2)),
-                          borderRadius: BorderRadius.circular(20 * fem),
-                        ),
-                        child: Stack(
-                          children: [
-                            Positioned(
-                              // group11kPz (1:331)
-                              left: 99 * fem,
-                              top: 16 * fem,
-                              child: Container(
-                                width: 156 * fem,
-                                height: 59.72 * fem,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      // thinkoutsidetheboxfmr (1:332)
-                                      margin: EdgeInsets.fromLTRB(0 * fem,
-                                          0 * fem, 0 * fem, 2.86 * fem),
-                                      child: Text(
-                                        'Think Outside The Box',
-                                        style: SafeGoogleFont(
-                                          'Inter',
-                                          fontSize: 14.0545444489 * ffem,
-                                          fontWeight: FontWeight.w700,
-                                          height: 1.2125 * ffem / fem,
-                                          color: Color(0xff315ed2),
-                                        ),
-                                      ),
-                                    ),
-                                    Container(
-                                      // artlifegoalsNgG (1:333)
-                                      margin: EdgeInsets.fromLTRB(0 * fem,
-                                          0 * fem, 0 * fem, 2.86 * fem),
-                                      child: Text(
-                                        'Art | Life | Goals',
-                                        style: SafeGoogleFont(
-                                          'Inter',
-                                          fontSize: 14.0545444489 * ffem,
-                                          fontWeight: FontWeight.w400,
-                                          height: 1.2125 * ffem / fem,
-                                          color: Color(0xff777777),
-                                        ),
-                                      ),
-                                    ),
-                                    Container(
-                                      // autogrouprqh9tPi (7VHgeQH7T4U7cLuxysrQH9)
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Container(
-                                            // ReY (1:334)
-                                            margin: EdgeInsets.fromLTRB(0 * fem,
-                                                0 * fem, 2.86 * fem, 0 * fem),
-                                            child: Text(
-                                              '4.1',
-                                              style: SafeGoogleFont(
-                                                'Inter',
-                                                fontSize: 14.0545444489 * ffem,
-                                                fontWeight: FontWeight.w400,
-                                                height: 1.2125 * ffem / fem,
-                                                color: Color(0xff777777),
-                                              ),
-                                            ),
-                                          ),
-                                          Container(
-                                            // vectorYUG (1:335)
-                                            margin: EdgeInsets.fromLTRB(
-                                                0 * fem,
-                                                0 * fem,
-                                                5.65 * fem,
-                                                1.31 * fem),
-                                            width: 13.82 * fem,
-                                            height: 13.91 * fem,
-                                            child: Image.asset(
-                                              'assets/page-1/images/vector-TNp.png',
-                                              width: 13.82 * fem,
-                                              height: 13.91 * fem,
-                                            ),
-                                          ),
-                                          Container(
-                                            // vectorG9N (1:336)
-                                            margin: EdgeInsets.fromLTRB(
-                                                0 * fem,
-                                                0 * fem,
-                                                5.65 * fem,
-                                                1.31 * fem),
-                                            width: 13.82 * fem,
-                                            height: 13.91 * fem,
-                                            child: Image.asset(
-                                              'assets/page-1/images/vector-y2g.png',
-                                              width: 13.82 * fem,
-                                              height: 13.91 * fem,
-                                            ),
-                                          ),
-                                          Container(
-                                            // vectorC32 (1:337)
-                                            margin: EdgeInsets.fromLTRB(
-                                                0 * fem,
-                                                0 * fem,
-                                                5.65 * fem,
-                                                1.31 * fem),
-                                            width: 13.82 * fem,
-                                            height: 13.91 * fem,
-                                            child: Image.asset(
-                                              'assets/page-1/images/vector-Tkc.png',
-                                              width: 13.82 * fem,
-                                              height: 13.91 * fem,
-                                            ),
-                                          ),
-                                          Container(
-                                            // vectorin4 (1:338)
-                                            margin: EdgeInsets.fromLTRB(0 * fem,
-                                                0 * fem, 0 * fem, 1.31 * fem),
-                                            width: 13.82 * fem,
-                                            height: 13.91 * fem,
-                                            child: Image.asset(
-                                              'assets/page-1/images/vector-krc.png',
-                                              width: 13.82 * fem,
-                                              height: 13.91 * fem,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              // image2evc (1:339)
-                              left: 15 * fem,
-                              top: 14 * fem,
-                              child: Align(
-                                child: SizedBox(
-                                  width: 72 * fem,
-                                  height: 102.19 * fem,
-                                  child: Image.asset(
-                                    'assets/page-1/images/image-2-Bw6.png',
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              // group134De (1:341)
-                              left: 0 * fem,
-                              top: 0 * fem,
-                              child: Container(
-                                padding: EdgeInsets.fromLTRB(
-                                    15 * fem, 14 * fem, 17 * fem, 13.81 * fem),
-                                width: 372 * fem,
-                                height: 130 * fem,
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Color(0xff315ed2)),
-                                  borderRadius: BorderRadius.circular(20 * fem),
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      // image2sRz (1:343)
-                                      margin: EdgeInsets.fromLTRB(
-                                          0 * fem, 0 * fem, 12 * fem, 0 * fem),
-                                      width: 72 * fem,
-                                      height: 102.19 * fem,
-                                      child: Image.asset(
-                                        'assets/page-1/images/image-2-CXa.png',
-                                      ),
-                                    ),
-                                    Container(
-                                      // autogroupywabarC (7VHh5ZDs9eGGo2PVnCYwAb)
-                                      margin: EdgeInsets.fromLTRB(0 * fem,
-                                          63.81 * fem, 47 * fem, 0 * fem),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Container(
-                                            // jan2023uda (1:352)
-                                            margin: EdgeInsets.fromLTRB(0 * fem,
-                                                0 * fem, 0 * fem, 2 * fem),
-                                            child: Text(
-                                              '13 Jan 2023',
-                                              style: SafeGoogleFont(
-                                                'Inter',
-                                                fontSize: 14.0500001907 * ffem,
-                                                fontWeight: FontWeight.w400,
-                                                height: 1.2125 * ffem / fem,
-                                                color: Color(0xff777777),
-                                              ),
-                                            ),
-                                          ),
-                                          Text(
-                                            // statusonthewayJvc (1:351)
-                                            'Status: On the way',
-                                            style: SafeGoogleFont(
-                                              'Inter',
-                                              fontSize: 14.0500001907 * ffem,
-                                              fontWeight: FontWeight.w400,
-                                              height: 1.2125 * ffem / fem,
-                                              color: Color(0xff315ed2),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Container(
-                                      // line1F5A (1:344)
-                                      margin: EdgeInsets.fromLTRB(0 * fem,
-                                          0 * fem, 16.79 * fem, 3.19 * fem),
-                                      width: 1.21 * fem,
-                                      height: 97.01 * fem,
-                                      decoration: BoxDecoration(
-                                        color: Color(0xff315ed2),
-                                      ),
-                                    ),
-                                    Container(
-                                      // autogroupprytM8C (7VHhD41NgwdiCBTrsAprYT)
-                                      margin: EdgeInsets.fromLTRB(
-                                          0 * fem, 20 * fem, 0 * fem, 20 * fem),
-                                      width: 65 * fem,
-                                      height: double.infinity,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Container(
-                                            // group15feg (1:348)
-                                            margin: EdgeInsets.fromLTRB(5 * fem,
-                                                0 * fem, 5.09 * fem, 17 * fem),
-                                            width: double.infinity,
-                                            child: Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                Container(
-                                                  // oF6 (1:349)
-                                                  margin: EdgeInsets.fromLTRB(
-                                                      0 * fem,
-                                                      0 * fem,
-                                                      3 * fem,
-                                                      0 * fem),
-                                                  child: Text(
-                                                    '599',
-                                                    style: SafeGoogleFont(
-                                                      'Inter',
-                                                      fontSize:
-                                                          20.432472229 * ffem,
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                      height:
-                                                          1.2125 * ffem / fem,
-                                                      color: Color(0xff315ed2),
-                                                    ),
-                                                  ),
-                                                ),
-                                                Container(
-                                                  // vectorXB6 (1:350)
-                                                  width: 10.91 * fem,
-                                                  height: 15 * fem,
-                                                  child: Image.asset(
-                                                    'assets/page-1/images/vector-fNp.png',
-                                                    width: 10.91 * fem,
-                                                    height: 15 * fem,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Container(
-                                            // group14fYC (1:345)
-                                            width: double.infinity,
-                                            height: 20 * fem,
-                                            decoration: BoxDecoration(
-                                              color: Color(0xff315ed2),
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                      20 * fem),
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                'Invoice',
-                                                style: SafeGoogleFont(
-                                                  'Inter',
-                                                  fontSize: 12 * ffem,
-                                                  fontWeight: FontWeight.w400,
-                                                  height: 1.2125 * ffem / fem,
-                                                  color: Color(0xffffffff),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10 * fem,
-                      ),
-                      Container(
-                        // group12qH2 (1:329)
-                        width: double.infinity,
-                        height: 130 * fem,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Color(0xff315ed2)),
-                          borderRadius: BorderRadius.circular(20 * fem),
-                        ),
-                        child: Stack(
-                          children: [
-                            Positioned(
-                              // group11kPz (1:331)
-                              left: 99 * fem,
-                              top: 16 * fem,
-                              child: Container(
-                                width: 156 * fem,
-                                height: 59.72 * fem,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      // thinkoutsidetheboxfmr (1:332)
-                                      margin: EdgeInsets.fromLTRB(0 * fem,
-                                          0 * fem, 0 * fem, 2.86 * fem),
-                                      child: Text(
-                                        'Think Outside The Box',
-                                        style: SafeGoogleFont(
-                                          'Inter',
-                                          fontSize: 14.0545444489 * ffem,
-                                          fontWeight: FontWeight.w700,
-                                          height: 1.2125 * ffem / fem,
-                                          color: Color(0xff315ed2),
-                                        ),
-                                      ),
-                                    ),
-                                    Container(
-                                      // artlifegoalsNgG (1:333)
-                                      margin: EdgeInsets.fromLTRB(0 * fem,
-                                          0 * fem, 0 * fem, 2.86 * fem),
-                                      child: Text(
-                                        'Art | Life | Goals',
-                                        style: SafeGoogleFont(
-                                          'Inter',
-                                          fontSize: 14.0545444489 * ffem,
-                                          fontWeight: FontWeight.w400,
-                                          height: 1.2125 * ffem / fem,
-                                          color: Color(0xff777777),
-                                        ),
-                                      ),
-                                    ),
-                                    Container(
-                                      // autogrouprqh9tPi (7VHgeQH7T4U7cLuxysrQH9)
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Container(
-                                            // ReY (1:334)
-                                            margin: EdgeInsets.fromLTRB(0 * fem,
-                                                0 * fem, 2.86 * fem, 0 * fem),
-                                            child: Text(
-                                              '4.1',
-                                              style: SafeGoogleFont(
-                                                'Inter',
-                                                fontSize: 14.0545444489 * ffem,
-                                                fontWeight: FontWeight.w400,
-                                                height: 1.2125 * ffem / fem,
-                                                color: Color(0xff777777),
-                                              ),
-                                            ),
-                                          ),
-                                          Container(
-                                            // vectorYUG (1:335)
-                                            margin: EdgeInsets.fromLTRB(
-                                                0 * fem,
-                                                0 * fem,
-                                                5.65 * fem,
-                                                1.31 * fem),
-                                            width: 13.82 * fem,
-                                            height: 13.91 * fem,
-                                            child: Image.asset(
-                                              'assets/page-1/images/vector-TNp.png',
-                                              width: 13.82 * fem,
-                                              height: 13.91 * fem,
-                                            ),
-                                          ),
-                                          Container(
-                                            // vectorG9N (1:336)
-                                            margin: EdgeInsets.fromLTRB(
-                                                0 * fem,
-                                                0 * fem,
-                                                5.65 * fem,
-                                                1.31 * fem),
-                                            width: 13.82 * fem,
-                                            height: 13.91 * fem,
-                                            child: Image.asset(
-                                              'assets/page-1/images/vector-y2g.png',
-                                              width: 13.82 * fem,
-                                              height: 13.91 * fem,
-                                            ),
-                                          ),
-                                          Container(
-                                            // vectorC32 (1:337)
-                                            margin: EdgeInsets.fromLTRB(
-                                                0 * fem,
-                                                0 * fem,
-                                                5.65 * fem,
-                                                1.31 * fem),
-                                            width: 13.82 * fem,
-                                            height: 13.91 * fem,
-                                            child: Image.asset(
-                                              'assets/page-1/images/vector-Tkc.png',
-                                              width: 13.82 * fem,
-                                              height: 13.91 * fem,
-                                            ),
-                                          ),
-                                          Container(
-                                            // vectorin4 (1:338)
-                                            margin: EdgeInsets.fromLTRB(0 * fem,
-                                                0 * fem, 0 * fem, 1.31 * fem),
-                                            width: 13.82 * fem,
-                                            height: 13.91 * fem,
-                                            child: Image.asset(
-                                              'assets/page-1/images/vector-krc.png',
-                                              width: 13.82 * fem,
-                                              height: 13.91 * fem,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              // image2evc (1:339)
-                              left: 15 * fem,
-                              top: 14 * fem,
-                              child: Align(
-                                child: SizedBox(
-                                  width: 72 * fem,
-                                  height: 102.19 * fem,
-                                  child: Image.asset(
-                                    'assets/page-1/images/image-2-Bw6.png',
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              // group134De (1:341)
-                              left: 0 * fem,
-                              top: 0 * fem,
-                              child: Container(
-                                padding: EdgeInsets.fromLTRB(
-                                    15 * fem, 14 * fem, 17 * fem, 13.81 * fem),
-                                width: 372 * fem,
-                                height: 130 * fem,
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Color(0xff315ed2)),
-                                  borderRadius: BorderRadius.circular(20 * fem),
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      // image2sRz (1:343)
-                                      margin: EdgeInsets.fromLTRB(
-                                          0 * fem, 0 * fem, 12 * fem, 0 * fem),
-                                      width: 72 * fem,
-                                      height: 102.19 * fem,
-                                      child: Image.asset(
-                                        'assets/page-1/images/image-2-CXa.png',
-                                      ),
-                                    ),
-                                    Container(
-                                      // autogroupywabarC (7VHh5ZDs9eGGo2PVnCYwAb)
-                                      margin: EdgeInsets.fromLTRB(0 * fem,
-                                          63.81 * fem, 47 * fem, 0 * fem),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Container(
-                                            // jan2023uda (1:352)
-                                            margin: EdgeInsets.fromLTRB(0 * fem,
-                                                0 * fem, 0 * fem, 2 * fem),
-                                            child: Text(
-                                              '13 Jan 2023',
-                                              style: SafeGoogleFont(
-                                                'Inter',
-                                                fontSize: 14.0500001907 * ffem,
-                                                fontWeight: FontWeight.w400,
-                                                height: 1.2125 * ffem / fem,
-                                                color: Color(0xff777777),
-                                              ),
-                                            ),
-                                          ),
-                                          Text(
-                                            // statusonthewayJvc (1:351)
-                                            'Status: On the way',
-                                            style: SafeGoogleFont(
-                                              'Inter',
-                                              fontSize: 14.0500001907 * ffem,
-                                              fontWeight: FontWeight.w400,
-                                              height: 1.2125 * ffem / fem,
-                                              color: Color(0xff315ed2),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Container(
-                                      // line1F5A (1:344)
-                                      margin: EdgeInsets.fromLTRB(0 * fem,
-                                          0 * fem, 16.79 * fem, 3.19 * fem),
-                                      width: 1.21 * fem,
-                                      height: 97.01 * fem,
-                                      decoration: BoxDecoration(
-                                        color: Color(0xff315ed2),
-                                      ),
-                                    ),
-                                    Container(
-                                      // autogroupprytM8C (7VHhD41NgwdiCBTrsAprYT)
-                                      margin: EdgeInsets.fromLTRB(
-                                          0 * fem, 20 * fem, 0 * fem, 20 * fem),
-                                      width: 65 * fem,
-                                      height: double.infinity,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Container(
-                                            // group15feg (1:348)
-                                            margin: EdgeInsets.fromLTRB(5 * fem,
-                                                0 * fem, 5.09 * fem, 17 * fem),
-                                            width: double.infinity,
-                                            child: Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                Container(
-                                                  // oF6 (1:349)
-                                                  margin: EdgeInsets.fromLTRB(
-                                                      0 * fem,
-                                                      0 * fem,
-                                                      3 * fem,
-                                                      0 * fem),
-                                                  child: Text(
-                                                    '599',
-                                                    style: SafeGoogleFont(
-                                                      'Inter',
-                                                      fontSize:
-                                                          20.432472229 * ffem,
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                      height:
-                                                          1.2125 * ffem / fem,
-                                                      color: Color(0xff315ed2),
-                                                    ),
-                                                  ),
-                                                ),
-                                                Container(
-                                                  // vectorXB6 (1:350)
-                                                  width: 10.91 * fem,
-                                                  height: 15 * fem,
-                                                  child: Image.asset(
-                                                    'assets/page-1/images/vector-fNp.png',
-                                                    width: 10.91 * fem,
-                                                    height: 15 * fem,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Container(
-                                            // group14fYC (1:345)
-                                            width: double.infinity,
-                                            height: 20 * fem,
-                                            decoration: BoxDecoration(
-                                              color: Color(0xff315ed2),
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                      20 * fem),
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                'Invoice',
-                                                style: SafeGoogleFont(
-                                                  'Inter',
-                                                  fontSize: 12 * ffem,
-                                                  fontWeight: FontWeight.w400,
-                                                  height: 1.2125 * ffem / fem,
-                                                  color: Color(0xffffffff),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+          child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 28.0),
+            child: Text(
+              // wishlistCXA (1:297)
+              'Orders',
+              style: SafeGoogleFont(
+                'Inter',
+                fontSize: 26.8050193787 * ffem,
+                fontWeight: FontWeight.w700,
+                height: 1.2125 * ffem / fem,
+                color: Color(0xff315ed2),
+              ),
             ),
           ),
-        ),
-      ),
+          Container(
+              width: MediaQuery.of(context).size.width,
+              child: orders != null
+                  ? ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        return BookComp(order: orders[index]);
+                      },
+                      itemCount: orders.length,
+                    )
+                  : Container(
+                      child: Center(
+                          child: Text(
+                        'No Orders',
+                        style: SafeGoogleFont(
+                          'Inter',
+                          fontSize: 20.8050193787 * ffem,
+                          fontWeight: FontWeight.w700,
+                          height: 1.2125 * ffem / fem,
+                          color: Color(0xff315ed2),
+                        ),
+                      )),
+                    )),
+        ],
+      )),
       appBar: AppBar(
         iconTheme: IconThemeData(color: Color(0xff315ED2)),
         // leading: Icon(Icons.menu, color: Color(0xff315ED2)),
