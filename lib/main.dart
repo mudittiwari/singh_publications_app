@@ -80,29 +80,25 @@ class _homepageState extends State<homepage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
+      body: Stack(
         children: [
           Container(
-            height: 100,
-            width: 100,
-            child: Image(
-              image: AssetImage(
-                'assets/page-1/images/logo.png',
-              ),
-              fit: BoxFit.contain,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 18.0),
-            child: Center(
-              child: Text(
-                "Singh Publication",
-                style: new TextStyle(
-                    color: Color(0xff315ED2),
-                    fontSize: 28.0,
-                    fontWeight: FontWeight.bold),
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              child: Image(
+                image: (AssetImage('assets/page-1/images/splashscreenbg.png')),
+                fit: BoxFit.fill,
+              )),
+          Align(
+            alignment: Alignment.center,
+            child: Container(
+              // height: 200,
+              width: 300,
+              child: Image(
+                image: AssetImage(
+                  'assets/page-1/images/logo.png',
+                ),
+                fit: BoxFit.contain,
               ),
             ),
           ),
@@ -114,13 +110,13 @@ class _homepageState extends State<homepage> {
 
 
 // work to do in this app
-// 1. check working or cart and wishlist page
-// 2. change bookcomp code in cart and wishlist page
-// 3. add contact and about page
-// 4. add drawer in appbar
 // 5. make ui of product page
 // 6. make profile settings and account settings page working
 // 7. make orders page ui and make it working
 // 8. make books page where only ebooks will be shown
-// 9. make splash screen working
 // 10. add loading screen on each api call
+// send on contact page on click join now
+// send on login page on click on third image
+// check signup page
+// add form validation on login and signup page
+// add automatically shift to next field in otp page

@@ -1,9 +1,15 @@
 // ignore_for_file: prefer_const_constructors, file_names
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:http/http.dart';
+import 'package:myapp/page-1/About.dart';
+import 'package:myapp/page-1/bottomnavbar.dart';
+import 'package:myapp/page-1/home.dart';
+// import 'package:webview_flutter/webview_flutter.dart';
 
 class Contact extends StatefulWidget {
   const Contact({super.key});
@@ -18,89 +24,238 @@ class _ContactState extends State<Contact> {
   TextEditingController subjectController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
+  showLoaderDialog(BuildContext context) {
+    AlertDialog alert = AlertDialog(
+      content: new Row(
+        children: [
+          CircularProgressIndicator(),
+          Container(
+              margin: EdgeInsets.only(left: 7), child: Text("Loading...")),
+        ],
+      ),
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  showmessage(BuildContext context, String message) {
+    AlertDialog alert = AlertDialog(
+      content: new Row(
+        children: [
+          Container(margin: EdgeInsets.only(left: 7), child: Text(message)),
+        ],
+      ),
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  void sendmail() async {
+    showLoaderDialog(context);
+    try {
+      final url = Uri.parse('https://singhpublications.onrender.com/contact');
+      Map<String, dynamic> body = {
+        'name': nameController.text.trim(),
+        'phone': phoneController.text.trim(),
+        'subject': subjectController.text.trim(),
+        'email': emailController.text.trim(),
+        'message': descriptionController.text.trim(),
+      };
+      String jsonBody = json.encode(body);
+      final headers = {'Content-Type': 'application/json'};
+      final encoding = Encoding.getByName('utf-8');
+      final response = await post(
+        url,
+        body: jsonBody,
+        encoding: encoding,
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        // Request successful
+        print(response.body);
+      } else {
+        // Request failed
+        print('Request failed with status: ${response.statusCode}');
+      }
+      Navigator.pop(context);
+    } catch (error) {
+      // Error occurred during the request
+      print('Error: $error');
+      Navigator.pop(context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        iconTheme: IconThemeData(color: Color(0xff315ED2)),
+        // leading: Icon(Icons.menu, color: Color(0xff315ED2)),
         toolbarHeight: 80,
         backgroundColor: Colors.white,
         elevation: 5.0,
-        leading: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 8),
-          child: Image.asset(
-            'assets/page-1/images/logo.png',
-            fit: BoxFit.contain,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(14.0),
+            child: Image(image: AssetImage('assets/page-1/images/logo.png')),
           ),
-        ),
+        ],
       ),
+      drawer: Drawer(
+          child: ListView(
+        // Important: Remove any padding from the ListView.
+        padding: EdgeInsets.symmetric(vertical: 50),
+        children: [
+          ListTile(
+            title: const Text('Home'),
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return Home();
+              }));
+            },
+          ),
+          ListTile(
+            title: const Text('Contact'),
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return Contact();
+              }));
+            },
+          ),
+          ListTile(
+            title: const Text('About'),
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return About();
+              }));
+            },
+          ),
+        ],
+      )),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(10),
+        // padding: EdgeInsets.all(10),
         child: Column(
           children: [
-            Text(
-              'Contact Us',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF315ED2),
-              ),
-            ),
-            SizedBox(height: 5),
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(
-                hintText: 'Name',
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Color(0xFF777777)),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 18.0),
+              child: Text(
+                'Contact Us',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF315ED2),
                 ),
               ),
             ),
             SizedBox(height: 5),
-            TextField(
-              controller: phoneController,
-              keyboardType: TextInputType.phone,
-              decoration: InputDecoration(
-                hintText: 'Phone Number',
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Color(0xFF777777)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: TextField(
+                controller: nameController,
+                decoration: InputDecoration(
+                  hintText: 'Name',
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF777777)),
+                  ),
                 ),
               ),
             ),
             SizedBox(height: 5),
-            TextField(
-              controller: subjectController,
-              decoration: InputDecoration(
-                hintText: 'Subject',
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Color(0xFF777777)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: TextField(
+                controller: phoneController,
+                keyboardType: TextInputType.phone,
+                decoration: InputDecoration(
+                  hintText: 'Phone Number',
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF777777)),
+                  ),
                 ),
               ),
             ),
             SizedBox(height: 5),
-            TextField(
-              controller: emailController,
-              keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(
-                hintText: 'Email Address',
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Color(0xFF777777)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: TextField(
+                controller: subjectController,
+                decoration: InputDecoration(
+                  hintText: 'Subject',
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF777777)),
+                  ),
                 ),
               ),
             ),
             SizedBox(height: 5),
-            TextField(
-              controller: descriptionController,
-              maxLines: null,
-              decoration: InputDecoration(
-                hintText: 'Description',
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Color(0xFF777777)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: TextField(
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  hintText: 'Email Address',
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF777777)),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 5),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: TextField(
+                controller: descriptionController,
+                maxLines: null,
+                decoration: InputDecoration(
+                  hintText: 'Description',
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF777777)),
+                  ),
                 ),
               ),
             ),
             SizedBox(height: 10),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                if (nameController.text.trim().length == 0) {
+                  showmessage(context, "Please enter name");
+                  return;
+                }
+                if (phoneController.text.trim().length != 10) {
+                  showmessage(context, "Please enter a valid number");
+                  return;
+                }
+                if (subjectController.text.trim().length == 0) {
+                  showmessage(context, "Please enter subject");
+                  return;
+                }
+                if (emailController.text.trim().length == 0) {
+                  showmessage(context, "Please enter email");
+                  return;
+                }
+                if (!emailController.text.contains('@') ||
+                    !emailController.text.contains('.')) {
+                  showmessage(context, "Please enter a valid email");
+                  return;
+                }
+                if (descriptionController.text.trim().length == 0) {
+                  showmessage(context, "Please enter description");
+                  return;
+                }
+                sendmail();
+              },
               style: ElevatedButton.styleFrom(
                 primary: Color(0xFF315ED2),
                 shape: RoundedRectangleBorder(
@@ -206,6 +361,7 @@ class _ContactState extends State<Contact> {
           ],
         ),
       ),
+      bottomNavigationBar: bottomnavbar(active: 'home'),
     );
   }
 }

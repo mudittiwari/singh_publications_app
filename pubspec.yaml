@@ -42,7 +42,7 @@ dependencies:
   firebase_core:
   http:
   shared_preferences:
-  webview_flutter:
+  # webview_flutter:
   carousel_slider: ^4.2.1
 
 dev_dependencies:

@@ -8,8 +8,11 @@ import 'package:flutter/gestures.dart';
 import 'dart:ui';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart';
+import 'package:myapp/page-1/About.dart';
+import 'package:myapp/page-1/Contact.dart';
 import 'package:myapp/page-1/bottomnavbar.dart';
 import 'package:myapp/page-1/delivery-address.dart';
+import 'package:myapp/page-1/home.dart';
 import 'package:myapp/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -92,301 +95,136 @@ class _BookcompState extends State<Bookcomp> {
     double baseWidth = 393;
     double fem = MediaQuery.of(context).size.width / baseWidth;
     double ffem = fem * 0.95;
-    // print(widget.product);
+    print(json.decode(widget.product)['image_url']);
     return Container(
-      // group12KFN (1:65)
-      margin: EdgeInsets.fromLTRB(0 * fem, 0 * fem, 0 * fem, 27 * fem),
+      margin: EdgeInsets.symmetric(vertical: 4, horizontal: 2),
       width: double.infinity,
-      height: 130 * fem,
+      height: 180,
+      padding: EdgeInsets.all(2),
       decoration: BoxDecoration(
-        border: Border.all(color: Color(0xff315ed2)),
-        borderRadius: BorderRadius.circular(20 * fem),
+        border: Border.all(color: Color(0xFF315ED2)),
+        borderRadius: BorderRadius.circular(12),
       ),
-      child: Stack(
+      child: Row(
         children: [
-          Positioned(
-            // group11QXi (1:67)
-            left: 99 * fem,
-            top: 16 * fem,
-            child: Container(
-              width: 156 * fem,
-              // height: 59.72 * fem,
+          Expanded(
+            child: Image.network(
+              json.decode(widget.product)['image_url'],
+              width: 80,
+              height: double.infinity,
+            ),
+          ),
+          SizedBox(width: 10),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Container(
-                    // thinkoutsidetheboxmFn (1:68)
-                    margin: EdgeInsets.fromLTRB(
-                        0 * fem, 0 * fem, 0 * fem, 2.86 * fem),
-                    child: Text(
-                      json.decode(widget.product)['title'],
-                      style: SafeGoogleFont(
-                        'Inter',
-                        fontSize: 14.0545444489 * ffem,
-                        fontWeight: FontWeight.w700,
-                        height: 1.2125 * ffem / fem,
-                        color: Color(0xff315ed2),
-                      ),
+                  Text(
+                    json.decode(widget.product)['title'],
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF315ED2),
                     ),
                   ),
-                  Container(
-                    // thinkoutsidetheboxmFn (1:68)
-                    margin: EdgeInsets.fromLTRB(
-                        0 * fem, 0 * fem, 0 * fem, 2.86 * fem),
-                    child: Text(
-                      json.decode(widget.product)['category'],
-                      style: SafeGoogleFont(
-                        'Inter',
-                        fontSize: 14.0545444489 * ffem,
-                        fontWeight: FontWeight.w700,
-                        height: 1.2125 * ffem / fem,
-                        color: Color(0xff777777),
-                      ),
+                  Text(
+                    json.decode(widget.product)['category'],
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF777777),
                     ),
                   ),
-                  Container(
-                    // artlifegoalsWcg (1:69)
-                    margin: EdgeInsets.fromLTRB(
-                        0 * fem, 0 * fem, 0 * fem, 2.86 * fem),
-                    child: Text(
-                      json.decode(widget.product)['subtitle'],
-                      style: SafeGoogleFont(
-                        'Inter',
-                        fontSize: 14.0545444489 * ffem,
-                        fontWeight: FontWeight.w400,
-                        height: 1.2125 * ffem / fem,
-                        color: Color(0xff777777),
-                      ),
+                  Text(
+                    json.decode(widget.product)['subtitle'],
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.normal,
+                      color: Color(0xFF777777),
                     ),
                   ),
-                  Container(
-                    // autogroupcu6bDGC (7VHFqnGt7ERVhc2muwcu6b)
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Container(
-                          // XGt (1:70)
-                          margin: EdgeInsets.fromLTRB(
-                              0 * fem, 0 * fem, 2.86 * fem, 0 * fem),
-                          child: Text(
-                            json.decode(widget.product)['rating'].toString(),
-                            style: SafeGoogleFont(
-                              'Inter',
-                              fontSize: 14.0545444489 * ffem,
-                              fontWeight: FontWeight.w400,
-                              height: 1.2125 * ffem / fem,
-                              color: Color(0xff777777),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          // vectord52 (1:71)
-                          margin: EdgeInsets.fromLTRB(
-                              0 * fem, 0 * fem, 5.65 * fem, 1.31 * fem),
-                          width: 13.82 * fem,
-                          height: 13.91 * fem,
-                          child: Image.asset(
-                            'assets/page-1/images/vector-N4G.png',
-                            width: 13.82 * fem,
-                            height: 13.91 * fem,
-                          ),
-                        ),
-                        Container(
-                          // vectorj84 (1:72)
-                          margin: EdgeInsets.fromLTRB(
-                              0 * fem, 0 * fem, 5.65 * fem, 1.31 * fem),
-                          width: 13.82 * fem,
-                          height: 13.91 * fem,
-                          child: Image.asset(
-                            'assets/page-1/images/vector-45n.png',
-                            width: 13.82 * fem,
-                            height: 13.91 * fem,
-                          ),
-                        ),
-                        Container(
-                          // vectorSYG (1:73)
-                          margin: EdgeInsets.fromLTRB(
-                              0 * fem, 0 * fem, 5.65 * fem, 1.31 * fem),
-                          width: 13.82 * fem,
-                          height: 13.91 * fem,
-                          child: Image.asset(
-                            'assets/page-1/images/image-1.png',
-                            width: 13.82 * fem,
-                            height: 13.91 * fem,
-                          ),
-                        ),
-                        Container(
-                          // vectorYrC (1:74)
-                          margin: EdgeInsets.fromLTRB(
-                              0 * fem, 0 * fem, 0 * fem, 1.31 * fem),
-                          width: 13.82 * fem,
-                          height: 13.91 * fem,
-                          child: Image.asset(
-                            'assets/page-1/images/vector-DjW.png',
-                            width: 13.82 * fem,
-                            height: 13.91 * fem,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Container(
-                      // thinkoutsidetheboxmFn (1:68)
-                      margin: EdgeInsets.fromLTRB(
-                          0 * fem, 0 * fem, 0 * fem, 2.86 * fem),
-                      child: Text(
-                        json
-                            .decode(widget.product)['createdAt']
-                            .toString()
-                            .substring(0, 10),
-                        style: SafeGoogleFont(
-                          'Inter',
-                          fontSize: 14.0545444489 * ffem,
-                          fontWeight: FontWeight.w500,
-                          height: 1.2125 * ffem / fem,
-                          color: Color(0xff777777),
+                  Row(
+                    children: [
+                      Text(
+                        json.decode(widget.product)['rating'].toString(),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF777777),
                         ),
                       ),
+                      SizedBox(width: 5),
+                      Image.asset(
+                        'assets/page-1/images/star.png',
+                        width: 16,
+                      ),
+                      Image.asset('assets/page-1/images/star.png', width: 16),
+                      Image.asset('assets/page-1/images/star.png', width: 16),
+                      Image.asset('assets/page-1/images/star.png', width: 16),
+                      Image.asset('assets/page-1/images/star.png', width: 16),
+                    ],
+                  ),
+                  Text(
+                    '11 Jan 2023',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.normal,
+                      color: Color(0xFF777777),
                     ),
                   ),
                 ],
               ),
             ),
           ),
-          Positioned(
-            // line15bE (1:75)
-            left: 272 * fem,
-            top: 15 * fem,
-            child: Align(
-              child: SizedBox(
-                width: 1.21 * fem,
-                height: 97.01 * fem,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Color(0xff315ed2),
-                  ),
-                ),
-              ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0),
+            child: VerticalDivider(
+              width: 1,
+              color: Color(0xFF315ED2),
             ),
           ),
-          Positioned(
-            // group13nkY (1:76)
-            left: 0 * fem,
-            top: 0 * fem,
-            child: Container(
-              padding: EdgeInsets.fromLTRB(
-                  272 * fem, 15 * fem, 98.79 * fem, 17.99 * fem),
-              width: 372 * fem,
-              height: 130 * fem,
-              decoration: BoxDecoration(
-                border: Border.all(color: Color(0xffd1d1d1)),
-                borderRadius: BorderRadius.circular(20 * fem),
-              ),
-              child: Center(
-                // line1HxC (1:78)
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 97.01 * fem,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Color(0xffd1d1d1),
+          Container(
+            margin: EdgeInsets.only(left: 10),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  '${json.decode(widget.product)['price']} Rs.',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF315ED2),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    removefromcart(json.decode(widget.product)['id']);
+                    // getitems();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: Color(0xFF315ED2),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 16,
                     ),
                   ),
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            // group14qTv (1:79)
-            left: 290 * fem,
-            top: 76 * fem,
-            child: GestureDetector(
-              onTap: () {
-                removefromcart(json.decode(widget.product)['id']);
-              },
-              child: Container(
-                width: 65 * fem,
-                height: 19 * fem,
-                decoration: BoxDecoration(
-                  color: Color(0xff315ed2),
-                  borderRadius: BorderRadius.circular(20 * fem),
-                ),
-                child: Center(
                   child: Text(
                     'Remove',
-                    style: SafeGoogleFont(
-                      'Inter',
-                      fontSize: 12 * ffem,
-                      fontWeight: FontWeight.w400,
-                      height: 1.2125 * ffem / fem,
-                      color: Color(0xffffffff),
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
                 ),
-              ),
-            ),
-          ),
-          Positioned(
-            // group15i1v (1:82)
-            left: 295 * fem,
-            top: 34 * fem,
-            child: Container(
-              width: 54.91 * fem,
-              height: 25 * fem,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    // SCp (1:83)
-                    margin:
-                        EdgeInsets.fromLTRB(0 * fem, 0 * fem, 3 * fem, 0 * fem),
-                    child: Text(
-                      json.decode(widget.product)['price'].toString(),
-                      style: SafeGoogleFont(
-                        'Inter',
-                        fontSize: 20.432472229 * ffem,
-                        fontWeight: FontWeight.w700,
-                        height: 1.2125 * ffem / fem,
-                        color: Color(0xff315ed2),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    // vectorZYL (1:84)
-                    width: 10.91 * fem,
-                    height: 15 * fem,
-                    child: Image.asset(
-                      'assets/page-1/images/vector-3AG.png',
-                      width: 10.91 * fem,
-                      height: 15 * fem,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-            // image3JPS (1:98)
-            left: 16 * fem,
-            top: 15 * fem,
-            child: Align(
-              child: SizedBox(
-                width: 72 * fem,
-                height: 102.19 * fem,
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Color(0xffffffff)),
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: AssetImage(
-                        'assets/page-1/images/image-3-bg.png',
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              ],
             ),
           ),
         ],
@@ -429,6 +267,25 @@ class _CartState extends State<Cart> {
     );
   }
 
+  showLoaderDialog(BuildContext context) {
+    AlertDialog alert = AlertDialog(
+      content: new Row(
+        children: [
+          CircularProgressIndicator(),
+          Container(
+              margin: EdgeInsets.only(left: 7), child: Text("Loading...")),
+        ],
+      ),
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
   getuser() async {
     String user = await getStringFromPrefs();
     setState(() {
@@ -438,6 +295,7 @@ class _CartState extends State<Cart> {
   }
 
   getitems() async {
+    showLoaderDialog(context);
     setState(() {
       this.price = 0;
     });
@@ -477,6 +335,7 @@ class _CartState extends State<Cart> {
     setState(() {
       this.products = products;
     });
+    Navigator.pop(context);
   }
 
   @override
@@ -496,6 +355,20 @@ class _CartState extends State<Cart> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 28.0),
+                child: Text(
+                  // wishlistCXA (1:297)
+                  'Cart',
+                  style: SafeGoogleFont(
+                    'Inter',
+                    fontSize: 26.8050193787 * ffem,
+                    fontWeight: FontWeight.w700,
+                    height: 1.2125 * ffem / fem,
+                    color: Color(0xff315ed2),
+                  ),
+                ),
+              ),
               Container(
                 // autogroupdnsuTeY (7VHCSxmAYtfQg3LKTCdnsu)
                 padding:
@@ -521,6 +394,18 @@ class _CartState extends State<Cart> {
                   ],
                 ),
               ),
+              products.length == 0
+                  ? Text(
+                      "No Items in Cart",
+                      style: SafeGoogleFont(
+                        'Inter',
+                        fontSize: 20.8050193787 * ffem,
+                        fontWeight: FontWeight.w700,
+                        height: 1.2125 * ffem / fem,
+                        color: Color(0xff315ed2),
+                      ),
+                    )
+                  : Text(""),
               Padding(
                 padding:
                     EdgeInsets.fromLTRB(10 * fem, 27 * fem, 11 * fem, 21 * fem),
@@ -740,53 +625,49 @@ class _CartState extends State<Cart> {
         ),
       ),
       appBar: AppBar(
+        iconTheme: IconThemeData(color: Color(0xff315ED2)),
+        // leading: Icon(Icons.menu, color: Color(0xff315ED2)),
         toolbarHeight: 80,
         backgroundColor: Colors.white,
         elevation: 5.0,
-        leading: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 8),
-          child: Image.asset(
-            'assets/page-1/images/logo.png',
-            fit: BoxFit.contain,
-          ),
-        ),
         actions: [
           Padding(
             padding: const EdgeInsets.all(14.0),
-            child: Container(
-              width: 250,
-              height: 60,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(color: Colors.grey),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      textAlign: TextAlign.center,
-                      decoration: InputDecoration(
-                        hintText: 'Search Here',
-                        contentPadding:
-                            EdgeInsets.only(bottom: 0.0, left: 16, right: 16),
-                        border: InputBorder.none,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.search,
-                      size: 30,
-                      color: Color(0xff315ED2),
-                    ),
-                    onPressed: () {},
-                  )
-                ],
-              ),
-            ),
+            child: Image(image: AssetImage('assets/page-1/images/logo.png')),
           ),
         ],
       ),
+      drawer: Drawer(
+          child: ListView(
+        // Important: Remove any padding from the ListView.
+        padding: EdgeInsets.symmetric(vertical: 50),
+        children: [
+          ListTile(
+            title: const Text('Home'),
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return Home();
+              }));
+            },
+          ),
+          ListTile(
+            title: const Text('Contact'),
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return Contact();
+              }));
+            },
+          ),
+          ListTile(
+            title: const Text('About'),
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return About();
+              }));
+            },
+          ),
+        ],
+      )),
       bottomNavigationBar: bottomnavbar(
         active: 'cart',
       ),
