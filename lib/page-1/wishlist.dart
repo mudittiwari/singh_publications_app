@@ -9,8 +9,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart';
 import 'package:myapp/page-1/About.dart';
 import 'package:myapp/page-1/Contact.dart';
+import 'package:myapp/page-1/Resetpassword.dart';
 import 'package:myapp/page-1/bottomnavbar.dart';
 import 'package:myapp/page-1/home.dart';
+import 'package:myapp/page-1/login.dart';
+import 'package:myapp/page-1/registration.dart';
 import 'package:myapp/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -278,38 +281,42 @@ class _WishlistState extends State<Wishlist> {
   getitems() async {
     showLoaderDialog(context);
     List<dynamic> products = [];
-    for (var element in json.decode(user!)['wishlist']) {
-      final uri = Uri.parse(
-          'https://singhpublications.onrender.com/api/product/products?id=${element}');
-      final headers = {'Content-Type': 'application/json'};
-      Map<String, dynamic> body = {
-        // 'email': emailController.text.trim(),
-        // 'password': passwordController.text.trim()
-      };
-      String jsonBody = json.encode(body);
-      final encoding = Encoding.getByName('utf-8');
-      Response response = await get(
-        uri,
-        headers: headers,
-        // body: jsonBody,
-        // encoding: encoding,
-      );
-      int statusCode = response.statusCode;
-      String responseBody = response.body;
-      // print(responseBody);
-      if (statusCode != 200) {
-        print("error");
-      } else {
-        // print("success");
-        products.add(responseBody);
-        // print(products);
+    try {
+      for (var element in json.decode(user!)['wishlist']) {
+        final uri = Uri.parse(
+            'https://singhpublications.onrender.com/api/product/products?id=${element}');
+        final headers = {'Content-Type': 'application/json'};
+        Map<String, dynamic> body = {
+          // 'email': emailController.text.trim(),
+          // 'password': passwordController.text.trim()
+        };
+        String jsonBody = json.encode(body);
+        final encoding = Encoding.getByName('utf-8');
+        Response response = await get(
+          uri,
+          headers: headers,
+          // body: jsonBody,
+          // encoding: encoding,
+        );
+        int statusCode = response.statusCode;
+        String responseBody = response.body;
+        // print(responseBody);
+        if (statusCode != 200) {
+          print("error");
+        } else {
+          // print("success");
+          products.add(responseBody);
+          // print(products);
+        }
       }
+      // print(products);
+      setState(() {
+        this.products = products;
+        Navigator.pop(context);
+      });
+    } catch (e) {
+      Navigator.pop(context);
     }
-    // print(products);
-    setState(() {
-      this.products = products;
-    });
-    Navigator.pop(context);
   }
 
   @override
@@ -332,63 +339,80 @@ class _WishlistState extends State<Wishlist> {
             decoration: BoxDecoration(
               color: Color(0xffffffff),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 28.0),
-                  child: Text(
-                    // wishlistCXA (1:297)
-                    'Wishlist',
-                    style: SafeGoogleFont(
-                      'Inter',
-                      fontSize: 26.8050193787 * ffem,
-                      fontWeight: FontWeight.w700,
-                      height: 1.2125 * ffem / fem,
-                      color: Color(0xff315ed2),
-                    ),
-                  ),
-                ),
-                Container(
-                  // autogroupdnsuTeY (7VHCSxmAYtfQg3LKTCdnsu)
-                  padding: EdgeInsets.fromLTRB(
-                      10 * fem, 27 * fem, 11 * fem, 21 * fem),
-                  width: double.infinity,
-                  child: Column(
+            child: user != ''
+                ? Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Container(
-                        width: MediaQuery.of(context).size.width,
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            return Bookcomp(
-                              product: products[index],
-                              callback: getuser,
-                              user: user,
-                            );
-                          },
-                          itemCount: products.length,
+                      Padding(
+                        padding: const EdgeInsets.only(top: 28.0),
+                        child: Text(
+                          // wishlistCXA (1:297)
+                          'Wishlist',
+                          style: SafeGoogleFont(
+                            'Inter',
+                            fontSize: 26.8050193787 * ffem,
+                            fontWeight: FontWeight.w700,
+                            height: 1.2125 * ffem / fem,
+                            color: Color(0xff315ed2),
+                          ),
                         ),
-                      )
+                      ),
+                      Container(
+                        // autogroupdnsuTeY (7VHCSxmAYtfQg3LKTCdnsu)
+                        padding: EdgeInsets.fromLTRB(
+                            10 * fem, 27 * fem, 11 * fem, 21 * fem),
+                        width: double.infinity,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: MediaQuery.of(context).size.width,
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemBuilder: (context, index) {
+                                  return Bookcomp(
+                                    product: products[index],
+                                    callback: getuser,
+                                    user: user,
+                                  );
+                                },
+                                itemCount: products.length,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      products.length == 0
+                          ? Text(
+                              "No Items in wishlist",
+                              style: SafeGoogleFont(
+                                'Inter',
+                                fontSize: 20.8050193787 * ffem,
+                                fontWeight: FontWeight.w700,
+                                height: 1.2125 * ffem / fem,
+                                color: Color(0xff315ed2),
+                              ),
+                            )
+                          : Text(""),
                     ],
-                  ),
-                ),
-                products.length == 0
-                    ? Text(
-                        "No Items in wishlist",
+                  )
+                : Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height * .6,
+                    child: Center(
+                      child: Text(
+                        "Login to View Wishlist",
                         style: SafeGoogleFont(
                           'Inter',
-                          fontSize: 20.8050193787 * ffem,
+                          fontSize: 25.8050193787 * ffem,
                           fontWeight: FontWeight.w700,
                           height: 1.2125 * ffem / fem,
                           color: Color(0xff315ed2),
                         ),
-                      )
-                    : Text(""),
-              ],
-            ),
+                      ),
+                    ),
+                  ),
           ),
         ),
       ),
@@ -434,6 +458,79 @@ class _WishlistState extends State<Wishlist> {
               }));
             },
           ),
+          user != ""
+              ? ListTile(
+                  title: const Text('Reset Password'),
+                  onTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return Resetpassword();
+                    }));
+                  },
+                )
+              : Text(""),
+          user == ""
+              ? Container(
+                  height: MediaQuery.of(context).size.height * 1.05,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return Login();
+                          }));
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: Color(0xFF315ED2),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 28,
+                          ),
+                        ),
+                        child: Text(
+                          'Login',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return Signup();
+                          }));
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: Color(0xFF315ED2),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 28,
+                          ),
+                        ),
+                        child: Text(
+                          'Sign Up',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : Text("")
         ],
       )),
       bottomNavigationBar: bottomnavbar(

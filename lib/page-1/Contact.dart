@@ -7,8 +7,12 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:http/http.dart';
 import 'package:myapp/page-1/About.dart';
+import 'package:myapp/page-1/Resetpassword.dart';
 import 'package:myapp/page-1/bottomnavbar.dart';
 import 'package:myapp/page-1/home.dart';
+import 'package:myapp/page-1/login.dart';
+import 'package:myapp/page-1/registration.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:webview_flutter/webview_flutter.dart';
 
 class Contact extends StatefulWidget {
@@ -24,6 +28,27 @@ class _ContactState extends State<Contact> {
   TextEditingController subjectController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
+  String? user;
+  Future<String> getStringFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('pubuser') ?? '';
+  }
+
+  getuser() async {
+    String user = await getStringFromPrefs();
+    print(user);
+    setState(() {
+      this.user = user;
+    });
+    // return user;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getuser();
+  }
+
   showLoaderDialog(BuildContext context) {
     AlertDialog alert = AlertDialog(
       content: new Row(
@@ -84,11 +109,19 @@ class _ContactState extends State<Contact> {
       if (response.statusCode == 200) {
         // Request successful
         print(response.body);
+        Navigator.pop(context);
+        nameController.clear();
+        phoneController.clear();
+        subjectController.clear();
+        emailController.clear();
+        descriptionController.clear();
+
+        showmessage(context, 'Message Sent');
       } else {
         // Request failed
+        Navigator.pop(context);
         print('Request failed with status: ${response.statusCode}');
       }
-      Navigator.pop(context);
     } catch (error) {
       // Error occurred during the request
       print('Error: $error');
@@ -141,6 +174,79 @@ class _ContactState extends State<Contact> {
               }));
             },
           ),
+          user != ""
+              ? ListTile(
+                  title: const Text('Reset Password'),
+                  onTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return Resetpassword();
+                    }));
+                  },
+                )
+              : Text(""),
+          user == ""
+              ? Container(
+                  height: MediaQuery.of(context).size.height * 1.05,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return Login();
+                          }));
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: Color(0xFF315ED2),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 28,
+                          ),
+                        ),
+                        child: Text(
+                          'Login',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return Signup();
+                          }));
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: Color(0xFF315ED2),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 28,
+                          ),
+                        ),
+                        child: Text(
+                          'Sign Up',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : Text("")
         ],
       )),
       body: SingleChildScrollView(
@@ -361,7 +467,9 @@ class _ContactState extends State<Contact> {
           ],
         ),
       ),
-      bottomNavigationBar: bottomnavbar(active: 'home'),
+      bottomNavigationBar: bottomnavbar(
+        active: 'none',
+      ),
     );
   }
 }

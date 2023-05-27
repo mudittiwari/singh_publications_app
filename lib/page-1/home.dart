@@ -13,10 +13,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart';
 import 'package:myapp/page-1/About.dart';
 import 'package:myapp/page-1/Contact.dart';
+import 'package:myapp/page-1/Resetpassword.dart';
 import 'package:myapp/page-1/bottomnavbar.dart';
 import 'package:myapp/page-1/cart.dart';
 import 'package:myapp/page-1/login.dart';
 import 'package:myapp/page-1/product-page.dart';
+import 'package:myapp/page-1/registration.dart';
 import 'package:myapp/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -197,30 +199,32 @@ class BookComp extends StatelessWidget {
             ],
           ),
         ),
-        Align(
-            alignment: Alignment.bottomRight,
-            child: GestureDetector(
-              onTap: () {
-                addtowishlist(context);
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 20.0, right: 16),
-                child: Container(
-                  height: 50,
-                  width: 50,
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                  child: Center(
-                    child: Image(
-                      image: AssetImage("assets/page-1/images/save.png"),
-                      width: 30,
+        user != ""
+            ? Align(
+                alignment: Alignment.bottomRight,
+                child: GestureDetector(
+                  onTap: () {
+                    addtowishlist(context);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 20.0, right: 16),
+                    child: Container(
+                      height: 50,
+                      width: 50,
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                      child: Center(
+                        child: Image(
+                          image: AssetImage("assets/page-1/images/save.png"),
+                          width: 30,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-            )),
+                ))
+            : Container(),
       ],
     );
   }
@@ -245,7 +249,7 @@ class _HomeState extends State<Home> {
   getproducts() async {
     // print("mudit tiwari");
     final uri = Uri.parse(
-        'https://singhpublications.onrender.com/api/product/getproducts');
+        'http://singhpublications.onrender.com/api/product/getproducts');
     final headers = {'Content-Type': 'application/json'};
     Map<String, dynamic> body = {
       // 'email': emailController.text.trim(),
@@ -355,6 +359,79 @@ class _HomeState extends State<Home> {
               }));
             },
           ),
+          user != ""
+              ? ListTile(
+                  title: const Text('Reset Password'),
+                  onTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return Resetpassword();
+                    }));
+                  },
+                )
+              : Text(""),
+          user == ""
+              ? Container(
+                  height: MediaQuery.of(context).size.height * 1.05,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return Login();
+                          }));
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: Color(0xFF315ED2),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 28,
+                          ),
+                        ),
+                        child: Text(
+                          'Login',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return Signup();
+                          }));
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: Color(0xFF315ED2),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 28,
+                          ),
+                        ),
+                        child: Text(
+                          'Sign Up',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : Text("")
         ],
       )),
       body: Builder(
@@ -375,11 +452,11 @@ class _HomeState extends State<Home> {
                     padding: EdgeInsets.fromLTRB(
                         13 * fem, 15 * fem, 13 * fem, 12 * fem),
                     width: double.infinity,
-                    height: 200,
+                    height: 175,
 
                     child: CarouselSlider(
                       options: CarouselOptions(
-                          height: 250.0,
+                          height: 200.0,
                           enableInfiniteScroll: true,
                           enlargeCenterPage: true,
                           // autoPlayInterval: Duration(seconds: 2),
@@ -527,61 +604,61 @@ class _HomeState extends State<Home> {
                       },
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Container(
-                      width: double.infinity,
-                      height: 170,
-                      decoration: BoxDecoration(
-                        color: Color(0xFF315ED2),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 4.0),
-                            child: Text(
-                              'Also Available on Playstore',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 4.0),
-                            child: Text(
-                              'Enjoy the Best collection book here',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.normal,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 4.0),
-                            child: Text(
-                              'Download Now!',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                          Image.asset(
-                            'assets/page-1/images/playstore.png',
-                            width: 150,
-                            // height: 120,
-                            fit: BoxFit.contain,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  // Padding(
+                  //   padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  //   child: Container(
+                  //     width: double.infinity,
+                  //     height: 170,
+                  //     decoration: BoxDecoration(
+                  //       color: Color(0xFF315ED2),
+                  //     ),
+                  //     child: Column(
+                  //       mainAxisAlignment: MainAxisAlignment.center,
+                  //       crossAxisAlignment: CrossAxisAlignment.center,
+                  //       children: [
+                  //         Padding(
+                  //           padding: const EdgeInsets.only(bottom: 4.0),
+                  //           child: Text(
+                  //             'Also Available on Playstore',
+                  //             style: TextStyle(
+                  //               fontSize: 20,
+                  //               fontWeight: FontWeight.bold,
+                  //               color: Colors.white,
+                  //             ),
+                  //           ),
+                  //         ),
+                  //         Padding(
+                  //           padding: const EdgeInsets.only(bottom: 4.0),
+                  //           child: Text(
+                  //             'Enjoy the Best collection book here',
+                  //             style: TextStyle(
+                  //               fontSize: 14,
+                  //               fontWeight: FontWeight.normal,
+                  //               color: Colors.white,
+                  //             ),
+                  //           ),
+                  //         ),
+                  //         Padding(
+                  //           padding: const EdgeInsets.only(bottom: 4.0),
+                  //           child: Text(
+                  //             'Download Now!',
+                  //             style: TextStyle(
+                  //               fontSize: 14,
+                  //               fontWeight: FontWeight.bold,
+                  //               color: Colors.white,
+                  //             ),
+                  //           ),
+                  //         ),
+                  //         Image.asset(
+                  //           'assets/page-1/images/playstore.png',
+                  //           width: 150,
+                  //           // height: 120,
+                  //           fit: BoxFit.contain,
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ),
+                  // ),
                   Padding(
                     padding: const EdgeInsets.only(top: 18.0),
                     child: Text(
@@ -615,83 +692,167 @@ class _HomeState extends State<Home> {
                           autoPlay: true),
                       items: [
                         "testimonial1.JPG",
+                        "testimonial2.jfif",
                       ].map((i) {
                         return Builder(
                           builder: (BuildContext context) {
-                            return Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Container(
-                                height: 476,
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                      color: Color(0xFF315ED2), width: 1.0),
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      width: MediaQuery.of(context).size.width *
-                                          .4,
-                                      padding: EdgeInsets.symmetric(
-                                          vertical: 8, horizontal: 8),
-                                      child: Image.asset(
-                                        'assets/page-1/images/$i',
+                            if (i == "testimonial1.JPG") {
+                              return Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Container(
+                                  height: 476,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                        color: Color(0xFF315ED2), width: 1.0),
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Container(
                                         width:
                                             MediaQuery.of(context).size.width *
-                                                .7,
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Container(
+                                                .4,
                                         padding: EdgeInsets.symmetric(
                                             vertical: 8, horizontal: 8),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              "Mrs. Gulshan Roy Chowdhury",
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16,
-                                                color: Color(0xFF315ED2),
-                                              ),
-                                            ),
-                                            Text(
-                                              "Ph.D. Scholar, M.N.(OBG-RAKCON-DU)",
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 12,
-                                                color: Color(0xFF315ED2),
-                                              ),
-                                            ),
-                                            Text(
-                                              "Lecturer, College of Nursing ABVIMS & Dr. R.M.L. Hospital, New Delhi",
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 10,
-                                                color: Color(0xFF315ED2),
-                                              ),
-                                            ),
-                                            SizedBox(height: 10),
-                                            Text(
-                                              "VERY SYSTEMATIC AND ORGANISED CONTENTS OF EACH CHAPTER IN A COMPREHENSIVE AND EASY LANGUAGE. EXAMPLES IN THE STATISTICS CHAPTER ARE VERY RELEVANT AND EFFECTIVELY MENTIONED.",
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w500,
-                                                color: Colors.black,
-                                              ),
-                                              textAlign: TextAlign.justify,
-                                            ),
-                                          ],
+                                        child: Image.asset(
+                                          'assets/page-1/images/$i',
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              .7,
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                      Expanded(
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 8, horizontal: 8),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "Mrs. Gulshan Roy Chowdhury",
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                  color: Color(0xFF315ED2),
+                                                ),
+                                              ),
+                                              Text(
+                                                "Ph.D. Scholar, M.N.(OBG-RAKCON-DU)",
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 12,
+                                                  color: Color(0xFF315ED2),
+                                                ),
+                                              ),
+                                              Text(
+                                                "Lecturer, College of Nursing ABVIMS & Dr. R.M.L. Hospital, New Delhi",
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 10,
+                                                  color: Color(0xFF315ED2),
+                                                ),
+                                              ),
+                                              SizedBox(height: 10),
+                                              Text(
+                                                "VERY SYSTEMATIC AND ORGANISED CONTENTS OF EACH CHAPTER IN A COMPREHENSIVE AND EASY LANGUAGE. EXAMPLES IN THE STATISTICS CHAPTER ARE VERY RELEVANT AND EFFECTIVELY MENTIONED.",
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Colors.black,
+                                                ),
+                                                textAlign: TextAlign.justify,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            );
+                              );
+                            }
+                            if (i == "testimonial2.jfif") {
+                              return Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Container(
+                                  height: 476,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                        color: Color(0xFF315ED2), width: 1.0),
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                .4,
+                                        padding: EdgeInsets.symmetric(
+                                            vertical: 8, horizontal: 8),
+                                        child: Image.asset(
+                                          'assets/page-1/images/$i',
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              .7,
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 8, horizontal: 8),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "Mrs. Deby Chakraborty",
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                  color: Color(0xFF315ED2),
+                                                ),
+                                              ),
+                                              Text(
+                                                "Ph.D. Scholar, M.N.(OBG-RAKCON-DU)",
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 12,
+                                                  color: Color(0xFF315ED2),
+                                                ),
+                                              ),
+                                              Text(
+                                                "Assistant Professor, Govt. College of Nursing, Agartalla (Tripura)",
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 10,
+                                                  color: Color(0xFF315ED2),
+                                                ),
+                                              ),
+                                              SizedBox(height: 10),
+                                              Text(
+                                                "This book is written in a very simple language.It is easily understandable and very comprehensive.I hope that students can gain knowledge about research methodology and implement their knowledge.My best wishes to Prof Dr.Sher Singh.",
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Colors.black,
+                                                ),
+                                                textAlign: TextAlign.justify,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }
+                            return Container();
                           },
                         );
                       }).toList(),
@@ -751,11 +912,9 @@ class _HomeState extends State<Home> {
           }
         },
       ),
-      bottomNavigationBar: user != ''
-          ? bottomnavbar(
-              active: 'home',
-            )
-          : Text(""),
+      bottomNavigationBar: bottomnavbar(
+        active: 'home',
+      ),
     );
   }
 }

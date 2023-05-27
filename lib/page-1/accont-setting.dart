@@ -6,11 +6,15 @@ import 'dart:ui';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:myapp/page-1/About.dart';
 import 'package:myapp/page-1/Contact.dart';
+import 'package:myapp/page-1/Resetpassword.dart';
 import 'package:myapp/page-1/billing-address.dart';
 import 'package:myapp/page-1/bottomnavbar.dart';
 import 'package:myapp/page-1/home.dart';
+import 'package:myapp/page-1/login.dart';
+import 'package:myapp/page-1/registration.dart';
 import 'package:myapp/page-1/shipping-address.dart';
 import 'package:myapp/utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AccountSettings extends StatefulWidget {
   const AccountSettings({super.key});
@@ -21,6 +25,25 @@ class AccountSettings extends StatefulWidget {
 
 class _AccountSettingsState extends State<AccountSettings> {
   double baseWidth = 393;
+  String? user;
+  Future<String> getStringFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('pubuser') ?? '';
+  }
+
+  getuser() async {
+    String user = await getStringFromPrefs();
+    setState(() {
+      this.user = user;
+    });
+    // return user;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getuser();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -176,6 +199,79 @@ class _AccountSettingsState extends State<AccountSettings> {
               }));
             },
           ),
+          user != ""
+              ? ListTile(
+                  title: const Text('Reset Password'),
+                  onTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return Resetpassword();
+                    }));
+                  },
+                )
+              : Text(""),
+          user == ""
+              ? Container(
+                  height: MediaQuery.of(context).size.height * 1.05,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return Login();
+                          }));
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: Color(0xFF315ED2),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 28,
+                          ),
+                        ),
+                        child: Text(
+                          'Login',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return Signup();
+                          }));
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: Color(0xFF315ED2),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 28,
+                          ),
+                        ),
+                        child: Text(
+                          'Sign Up',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : Text("")
         ],
       )),
       bottomNavigationBar: bottomnavbar(

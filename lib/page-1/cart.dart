@@ -10,9 +10,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart';
 import 'package:myapp/page-1/About.dart';
 import 'package:myapp/page-1/Contact.dart';
+import 'package:myapp/page-1/Resetpassword.dart';
 import 'package:myapp/page-1/bottomnavbar.dart';
 import 'package:myapp/page-1/delivery-address.dart';
 import 'package:myapp/page-1/home.dart';
+import 'package:myapp/page-1/login.dart';
+import 'package:myapp/page-1/registration.dart';
 import 'package:myapp/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -296,46 +299,50 @@ class _CartState extends State<Cart> {
 
   getitems() async {
     showLoaderDialog(context);
-    setState(() {
-      this.price = 0;
-    });
-    List<dynamic> products = [];
-    for (var element in json.decode(user!)['cart']) {
-      final uri = Uri.parse(
-          'https://singhpublications.onrender.com/api/product/products?id=${element}');
-      final headers = {'Content-Type': 'application/json'};
-      Map<String, dynamic> body = {
-        // 'email': emailController.text.trim(),
-        // 'password': passwordController.text.trim()
-      };
-      String jsonBody = json.encode(body);
-      final encoding = Encoding.getByName('utf-8');
-      Response response = await get(
-        uri,
-        headers: headers,
-        // body: jsonBody,
-        // encoding: encoding,
-      );
-      int statusCode = response.statusCode;
-      String responseBody = response.body;
-      // print(responseBody);
-      if (statusCode != 200) {
-        print("error");
-      } else {
-        var price_ = json.decode(responseBody)['price'];
-        setState(() {
-          this.price = price_ + this.price;
-        });
-        // print("success");
-        products.add(responseBody);
-        print(products);
+    try {
+      setState(() {
+        this.price = 0;
+      });
+      List<dynamic> products = [];
+      for (var element in json.decode(user!)['cart']) {
+        final uri = Uri.parse(
+            'https://singhpublications.onrender.com/api/product/products?id=${element}');
+        final headers = {'Content-Type': 'application/json'};
+        Map<String, dynamic> body = {
+          // 'email': emailController.text.trim(),
+          // 'password': passwordController.text.trim()
+        };
+        String jsonBody = json.encode(body);
+        final encoding = Encoding.getByName('utf-8');
+        Response response = await get(
+          uri,
+          headers: headers,
+          // body: jsonBody,
+          // encoding: encoding,
+        );
+        int statusCode = response.statusCode;
+        String responseBody = response.body;
+        // print(responseBody);
+        if (statusCode != 200) {
+          print("error");
+        } else {
+          var price_ = json.decode(responseBody)['price'];
+          setState(() {
+            this.price = price_ + this.price;
+          });
+          // print("success");
+          products.add(responseBody);
+          print(products);
+        }
       }
+      // print(products);
+      setState(() {
+        this.products = products;
+      });
+      Navigator.pop(context);
+    } catch (e) {
+      Navigator.pop(context);
     }
-    // print(products);
-    setState(() {
-      this.products = products;
-    });
-    Navigator.pop(context);
   }
 
   @override
@@ -352,276 +359,295 @@ class _CartState extends State<Cart> {
       body: SingleChildScrollView(
         child: Container(
           width: double.infinity,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 28.0),
-                child: Text(
-                  // wishlistCXA (1:297)
-                  'Cart',
-                  style: SafeGoogleFont(
-                    'Inter',
-                    fontSize: 26.8050193787 * ffem,
-                    fontWeight: FontWeight.w700,
-                    height: 1.2125 * ffem / fem,
-                    color: Color(0xff315ed2),
-                  ),
-                ),
-              ),
-              Container(
-                // autogroupdnsuTeY (7VHCSxmAYtfQg3LKTCdnsu)
-                padding:
-                    EdgeInsets.fromLTRB(10 * fem, 27 * fem, 11 * fem, 21 * fem),
-                width: double.infinity,
-                child: Column(
+          child: user != ''
+              ? Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Container(
-                      width: MediaQuery.of(context).size.width,
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          return Bookcomp(
-                              product: products[index],
-                              user: user,
-                              callback: getuser);
-                        },
-                        itemCount: products.length,
+                    Padding(
+                      padding: const EdgeInsets.only(top: 28.0),
+                      child: Text(
+                        // wishlistCXA (1:297)
+                        'Cart',
+                        style: SafeGoogleFont(
+                          'Inter',
+                          fontSize: 26.8050193787 * ffem,
+                          fontWeight: FontWeight.w700,
+                          height: 1.2125 * ffem / fem,
+                          color: Color(0xff315ed2),
+                        ),
                       ),
-                    )
+                    ),
+                    Container(
+                      // autogroupdnsuTeY (7VHCSxmAYtfQg3LKTCdnsu)
+                      padding: EdgeInsets.fromLTRB(
+                          10 * fem, 27 * fem, 11 * fem, 21 * fem),
+                      width: double.infinity,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: MediaQuery.of(context).size.width,
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemBuilder: (context, index) {
+                                return Bookcomp(
+                                    product: products[index],
+                                    user: user,
+                                    callback: getuser);
+                              },
+                              itemCount: products.length,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    products.length == 0
+                        ? Text(
+                            "No Items in Cart",
+                            style: SafeGoogleFont(
+                              'Inter',
+                              fontSize: 20.8050193787 * ffem,
+                              fontWeight: FontWeight.w700,
+                              height: 1.2125 * ffem / fem,
+                              color: Color(0xff315ed2),
+                            ),
+                          )
+                        : Text(""),
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(
+                          10 * fem, 27 * fem, 11 * fem, 21 * fem),
+                      child: Container(
+                        // group23ykU (1:85)
+                        width: double.infinity,
+                        height: 130 * fem,
+                        child: Stack(
+                          children: [
+                            Positioned(
+                              // group12K3e (1:86)
+                              left: 0 * fem,
+                              top: 0 * fem,
+                              child: Container(
+                                padding: EdgeInsets.fromLTRB(272 * fem,
+                                    15 * fem, 98.79 * fem, 17.99 * fem),
+                                width: 372 * fem,
+                                height: 130 * fem,
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Color(0xff315ed2)),
+                                  borderRadius: BorderRadius.circular(20 * fem),
+                                ),
+                                child: Center(
+                                  // line1c2k (1:88)
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    height: 97.01 * fem,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Color(0xff315ed2),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              // group13wqi (1:89)
+                              left: 0 * fem,
+                              top: 0 * fem,
+                              child: Container(
+                                padding: EdgeInsets.fromLTRB(272 * fem,
+                                    15 * fem, 98.79 * fem, 17.99 * fem),
+                                width: 372 * fem,
+                                height: 130 * fem,
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Color(0xff315ed2)),
+                                  borderRadius: BorderRadius.circular(20 * fem),
+                                ),
+                                child: Center(
+                                  // line1qRJ (1:91)
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    height: 97.01 * fem,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Color(0xff315ed2),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              // group15PBv (1:92)
+                              left: 79 * fem,
+                              top: 15 * fem,
+                              child: Container(
+                                width: 254 * fem,
+                                height: 65 * fem,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      // iEC (1:93)
+                                      margin: EdgeInsets.fromLTRB(
+                                          0 * fem, 0 * fem, 8 * fem, 0 * fem),
+                                      child: Text(
+                                        price.toString(),
+                                        style: SafeGoogleFont(
+                                          'Inter',
+                                          fontSize: 32.7460823059 * ffem,
+                                          fontWeight: FontWeight.w700,
+                                          height: 1.2125 * ffem / fem,
+                                          color: Color(0xff315ed2),
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      // vectorReQ (1:95)
+                                      margin: EdgeInsets.fromLTRB(0 * fem,
+                                          8 * fem, 130.52 * fem, 0 * fem),
+                                      width: 17.48 * fem,
+                                      height: 24.04 * fem,
+                                      child: Image.asset(
+                                        'assets/page-1/images/vector-ktG.png',
+                                        width: 17.48 * fem,
+                                        height: 24.04 * fem,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              // line15bE (1:75)
+                              left: 272 * fem,
+                              top: 15 * fem,
+                              child: Align(
+                                child: SizedBox(
+                                  width: 1.21 * fem,
+                                  height: 97.01 * fem,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Color(0xff315ed2),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              // itemsGQ8 (1:99)
+                              left: 305 * fem,
+                              top: 45 * fem,
+                              child: Align(
+                                child: SizedBox(
+                                  width: 34 * fem,
+                                  height: 54 * fem,
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        products.length.toString(),
+                                        style: SafeGoogleFont(
+                                          'Inter',
+                                          fontSize: 32.7460823059 * ffem,
+                                          fontWeight: FontWeight.w700,
+                                          height: 1.2125 * ffem / fem,
+                                          color: Color(0xff315ed2),
+                                        ),
+                                      ),
+                                      Text(
+                                        'Items',
+                                        style: SafeGoogleFont(
+                                          'Inter',
+                                          fontSize: 12.2032423019 * ffem,
+                                          fontWeight: FontWeight.w700,
+                                          height: 1.2125 * ffem / fem,
+                                          color: Color(0xff315ed2),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              // rectangle38NTA (1:100)
+                              left: 65 * fem,
+                              top: 72 * fem,
+                              child: Align(
+                                child: SizedBox(
+                                  width: 126 * fem,
+                                  height: 36.65 * fem,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(
+                                          33.7607650757 * fem),
+                                      color: Color(0xff315ed2),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              // buynowHKE (1:101)
+                              left: 85 * fem,
+                              top: 77 * fem,
+                              child: Align(
+                                child: SizedBox(
+                                  width: 86 * fem,
+                                  height: 25 * fem,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      if (products.length > 0) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                Deliveryaddress(
+                                              price: price,
+                                            ),
+                                          ),
+                                        );
+                                      } else {
+                                        showmessage(
+                                            context, "No items in cart");
+                                      }
+                                    },
+                                    child: Text(
+                                      'Buy Now',
+                                      style: SafeGoogleFont(
+                                        'Inter',
+                                        fontSize: 20.2564582825 * ffem,
+                                        fontWeight: FontWeight.w500,
+                                        height: 1.2125 * ffem / fem,
+                                        color: Color(0xffffffff),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
-                ),
-              ),
-              products.length == 0
-                  ? Text(
-                      "No Items in Cart",
+                )
+              : Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height * .6,
+                  child: Center(
+                    child: Text(
+                      "Login to View Cart",
                       style: SafeGoogleFont(
                         'Inter',
-                        fontSize: 20.8050193787 * ffem,
+                        fontSize: 25.8050193787 * ffem,
                         fontWeight: FontWeight.w700,
                         height: 1.2125 * ffem / fem,
                         color: Color(0xff315ed2),
                       ),
-                    )
-                  : Text(""),
-              Padding(
-                padding:
-                    EdgeInsets.fromLTRB(10 * fem, 27 * fem, 11 * fem, 21 * fem),
-                child: Container(
-                  // group23ykU (1:85)
-                  width: double.infinity,
-                  height: 130 * fem,
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        // group12K3e (1:86)
-                        left: 0 * fem,
-                        top: 0 * fem,
-                        child: Container(
-                          padding: EdgeInsets.fromLTRB(
-                              272 * fem, 15 * fem, 98.79 * fem, 17.99 * fem),
-                          width: 372 * fem,
-                          height: 130 * fem,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Color(0xff315ed2)),
-                            borderRadius: BorderRadius.circular(20 * fem),
-                          ),
-                          child: Center(
-                            // line1c2k (1:88)
-                            child: SizedBox(
-                              width: double.infinity,
-                              height: 97.01 * fem,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Color(0xff315ed2),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        // group13wqi (1:89)
-                        left: 0 * fem,
-                        top: 0 * fem,
-                        child: Container(
-                          padding: EdgeInsets.fromLTRB(
-                              272 * fem, 15 * fem, 98.79 * fem, 17.99 * fem),
-                          width: 372 * fem,
-                          height: 130 * fem,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Color(0xff315ed2)),
-                            borderRadius: BorderRadius.circular(20 * fem),
-                          ),
-                          child: Center(
-                            // line1qRJ (1:91)
-                            child: SizedBox(
-                              width: double.infinity,
-                              height: 97.01 * fem,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Color(0xff315ed2),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        // group15PBv (1:92)
-                        left: 79 * fem,
-                        top: 15 * fem,
-                        child: Container(
-                          width: 254 * fem,
-                          height: 65 * fem,
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                // iEC (1:93)
-                                margin: EdgeInsets.fromLTRB(
-                                    0 * fem, 0 * fem, 8 * fem, 0 * fem),
-                                child: Text(
-                                  price.toString(),
-                                  style: SafeGoogleFont(
-                                    'Inter',
-                                    fontSize: 32.7460823059 * ffem,
-                                    fontWeight: FontWeight.w700,
-                                    height: 1.2125 * ffem / fem,
-                                    color: Color(0xff315ed2),
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                // vectorReQ (1:95)
-                                margin: EdgeInsets.fromLTRB(
-                                    0 * fem, 8 * fem, 130.52 * fem, 0 * fem),
-                                width: 17.48 * fem,
-                                height: 24.04 * fem,
-                                child: Image.asset(
-                                  'assets/page-1/images/vector-ktG.png',
-                                  width: 17.48 * fem,
-                                  height: 24.04 * fem,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        // line15bE (1:75)
-                        left: 272 * fem,
-                        top: 15 * fem,
-                        child: Align(
-                          child: SizedBox(
-                            width: 1.21 * fem,
-                            height: 97.01 * fem,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Color(0xff315ed2),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        // itemsGQ8 (1:99)
-                        left: 305 * fem,
-                        top: 45 * fem,
-                        child: Align(
-                          child: SizedBox(
-                            width: 34 * fem,
-                            height: 54 * fem,
-                            child: Column(
-                              children: [
-                                Text(
-                                  products.length.toString(),
-                                  style: SafeGoogleFont(
-                                    'Inter',
-                                    fontSize: 32.7460823059 * ffem,
-                                    fontWeight: FontWeight.w700,
-                                    height: 1.2125 * ffem / fem,
-                                    color: Color(0xff315ed2),
-                                  ),
-                                ),
-                                Text(
-                                  'Items',
-                                  style: SafeGoogleFont(
-                                    'Inter',
-                                    fontSize: 12.2032423019 * ffem,
-                                    fontWeight: FontWeight.w700,
-                                    height: 1.2125 * ffem / fem,
-                                    color: Color(0xff315ed2),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        // rectangle38NTA (1:100)
-                        left: 65 * fem,
-                        top: 72 * fem,
-                        child: Align(
-                          child: SizedBox(
-                            width: 126 * fem,
-                            height: 36.65 * fem,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius:
-                                    BorderRadius.circular(33.7607650757 * fem),
-                                color: Color(0xff315ed2),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        // buynowHKE (1:101)
-                        left: 85 * fem,
-                        top: 77 * fem,
-                        child: Align(
-                          child: SizedBox(
-                            width: 86 * fem,
-                            height: 25 * fem,
-                            child: GestureDetector(
-                              onTap: () {
-                                if (products.length > 0) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => Deliveryaddress(
-                                        price: price,
-                                      ),
-                                    ),
-                                  );
-                                } else {
-                                  showmessage(context, "No items in cart");
-                                }
-                              },
-                              child: Text(
-                                'Buy Now',
-                                style: SafeGoogleFont(
-                                  'Inter',
-                                  fontSize: 20.2564582825 * ffem,
-                                  fontWeight: FontWeight.w500,
-                                  height: 1.2125 * ffem / fem,
-                                  color: Color(0xffffffff),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
         ),
       ),
       appBar: AppBar(
@@ -666,6 +692,79 @@ class _CartState extends State<Cart> {
               }));
             },
           ),
+          user != ""
+              ? ListTile(
+                  title: const Text('Reset Password'),
+                  onTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return Resetpassword();
+                    }));
+                  },
+                )
+              : Text(""),
+          user == ""
+              ? Container(
+                  height: MediaQuery.of(context).size.height * 1.05,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return Login();
+                          }));
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: Color(0xFF315ED2),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 28,
+                          ),
+                        ),
+                        child: Text(
+                          'Login',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return Signup();
+                          }));
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: Color(0xFF315ED2),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 28,
+                          ),
+                        ),
+                        child: Text(
+                          'Sign Up',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : Text("")
         ],
       )),
       bottomNavigationBar: bottomnavbar(

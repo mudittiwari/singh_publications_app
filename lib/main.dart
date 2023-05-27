@@ -41,11 +41,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter',
+      title: 'Singh Publications',
       debugShowCheckedModeBanner: false,
       scrollBehavior: MyCustomScrollBehavior(),
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.blueGrey,
       ),
       home: homepage(),
     );
@@ -78,13 +78,6 @@ class _homepageState extends State<homepage> {
     return Scaffold(
       body: Stack(
         children: [
-          Container(
-              height: MediaQuery.of(context).size.height,
-              width: MediaQuery.of(context).size.width,
-              child: Image(
-                image: (AssetImage('assets/page-1/images/splashscreenbg.png')),
-                fit: BoxFit.fill,
-              )),
           Align(
             alignment: Alignment.center,
             child: Container(
@@ -107,7 +100,6 @@ class _homepageState extends State<homepage> {
 
 // work to do in this app
 // 8. make books page where only ebooks will be shown
-// 10. add loading screen on each api call
-// check signup page
-// add form validation on login and signup page
-// add automatically shift to next field in otp page
+// change icon of app
+// change name of app
+// fix pages routing of complete app

@@ -8,6 +8,7 @@ import 'dart:ui';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart';
 import 'package:myapp/page-1/otp.dart';
+import 'package:myapp/page-1/registration.dart';
 import 'package:myapp/utils.dart';
 
 class Login extends StatefulWidget {
@@ -154,18 +155,33 @@ class _LoginState extends State<Login> {
             ),
             Padding(
               padding: const EdgeInsets.only(top: 38.0),
-              child: Container(
-                // createanaccounthgC (1:825)
-                margin:
-                    EdgeInsets.fromLTRB(0 * fem, 0 * fem, 1 * fem, 35 * fem),
-                child: Text(
-                  'Create an account',
-                  style: SafeGoogleFont(
-                    'Inter',
-                    fontSize: 20.1037635803 * ffem,
-                    fontWeight: FontWeight.w400,
-                    height: 1.2125 * ffem / fem,
-                    color: Color(0xff777777),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => Signup()),
+                  );
+                },
+                child: Container(
+                  // createanaccounthgC (1:825)
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Color(0xff777777)),
+                    borderRadius: BorderRadius.circular(5 * fem),
+                  ),
+                  margin:
+                      EdgeInsets.fromLTRB(0 * fem, 0 * fem, 1 * fem, 35 * fem),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'Create an account',
+                      style: SafeGoogleFont(
+                        'Inter',
+                        fontSize: 20.1037635803 * ffem,
+                        fontWeight: FontWeight.w400,
+                        height: 1.2125 * ffem / fem,
+                        color: Color(0xff777777),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -218,6 +234,7 @@ class _LoginState extends State<Login> {
                   padding: const EdgeInsets.only(left: 8.0),
                   child: TextField(
                     controller: mobileController,
+                    keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
                     decoration: InputDecoration(
                       border: InputBorder.none,

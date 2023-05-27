@@ -48,8 +48,13 @@ class _OTPState extends State<OTP> {
         print(widget.user);
         await prefs.setString('pubuser', widget.user).then((value) {
           // print(value);
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => Home()));
+          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+            builder: (context) {
+              return Home();
+            },
+          ), (route) => false);
+          // Navigator.push(
+          //     context, MaterialPageRoute(builder: (context) => Home()));
         });
       }
     });
@@ -79,7 +84,7 @@ class _OTPState extends State<OTP> {
               // color: Color(0xffffffff),
               ),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
@@ -89,25 +94,17 @@ class _OTPState extends State<OTP> {
                       // image175XUC (1:829)
                       margin: EdgeInsets.fromLTRB(
                           11 * fem, 0 * fem, 0 * fem, 2.09 * fem),
-                      width: 120 * fem,
-                      height: 120 * fem,
-                      child: Image.asset(
-                        'assets/page-1/images/logo.png',
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                    Container(
-                      // singhpublicationFQC (1:828)
-                      margin: EdgeInsets.fromLTRB(
-                          0 * fem, 20 * fem, 1 * fem, 20 * fem),
-                      child: Text(
-                        'Singh Publication',
-                        style: SafeGoogleFont(
-                          'Inter',
-                          fontSize: 31.6666660309 * ffem,
-                          fontWeight: FontWeight.w800,
-                          height: 1.2125 * ffem / fem,
-                          color: Color(0xff315ed2),
+                      width: double.infinity,
+                      decoration: BoxDecoration(),
+                      child: Center(
+                        // image176GKz (1:820)
+                        child: SizedBox(
+                          width: 200 * fem,
+                          // height: 100 * fem,
+                          child: Image.asset(
+                            'assets/page-1/images/logo.png',
+                            fit: BoxFit.fill,
+                          ),
                         ),
                       ),
                     ),
